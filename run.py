@@ -1,11 +1,15 @@
 import time
+import numpy as np
+
 from playsound import playsound
 
 import tkinter as tk
 import tkinter.font as tkFont
 
+from colour import Color
 
-interval = [12]*2
+
+interval = [5]*2
 pause = 2
 
 
@@ -25,9 +29,14 @@ class Application(tk.Frame):
     def __init__(self, master=None):
         super().__init__(master)
 
+        self._current_time = 0
+        self._current_phase = "Init"
+
         self.master = master
         self.pack()
         self.create_widgets()
+        self.create_interval_shit()
+
 
     def create_widgets(self):
         self.start = tk.Button(self, width=8, height=2, font=tkFont.Font(family="Lucida Grande", size=20))
@@ -36,41 +45,57 @@ class Application(tk.Frame):
         self.start.pack(side="bottom")
 
         self.current_timer = tk.Label(self, width=14, height=3, font=tkFont.Font(family="Lucida Grande", size=20))
-        self.set_current_time_label("Init", 0)
+        self.set_current_time_label()
         self.current_timer.pack(side="top")
 
         #self.quit = tk.Button(self, text="QUIT", fg="red", command=self.master.destroy)
         #self.quit.pack(side="bottom")
 
-    def set_current_time_label(self, phase, time_number):
-        self.current_timer["text"] = f"{phase:10}{max(time_number,0):5.2f}s"
-        if phase == self.PAUSE:
-            self.current_timer.config(bg="green")
-        elif phase == self.RUN:
-            self.current_timer.config(bg="red")
+    def create_interval_shit(self):
+        self._interval = []
+        for j, inter in enumerate(interval):
+            self._interval.append((self.PAUSE, pause))
+            self._interval.append((self.RUN, inter))
 
+    def set_current_time_label(self, color="white"):
+        self.current_timer["text"] = f"{self._current_phase:10}{max(self._current_time,0):5.2f}s"
+        self.current_timer.config(bg=color)
 
     def adjust_time(self, phase: str, total_time: float):
 
-        label_refresh_time = 0.1
-        self.set_current_time_label(phase, total_time)
-        t = total_time
-        while t > -label_refresh_time / 2:
+        label_refresh_time = 0.01
+
+        if phase == self.PAUSE:
+            colors = list(Color("green").range_to(Color("red"), int(total_time / label_refresh_time) + 1))
+        elif phase == self.RUN:
+            colors = list(Color("red").range_to(Color("green"), int(total_time / label_refresh_time) + 1))
+        else:
+            KeyError(f"phase {phase} not known.")
+
+        self._current_phase = phase
+        self._current_time = total_time
+        self.set_current_time_label()
+        i = 0
+        while self._current_time > -label_refresh_time / 2:
             time.sleep(label_refresh_time)
-            t -= label_refresh_time
-            self.set_current_time_label(phase, t)
+            self._current_time -= label_refresh_time
+            self.set_current_time_label(color=colors[i])
             self.update()
+            i += 1
 
     def interval_cycle(self):
 
-        for j, inter in enumerate(interval):
-            self.adjust_time(self.PAUSE, pause)
-            #sound_begin()
-            self.adjust_time(self.RUN, inter)
-            #sound_end()
+        copy_interval = self._interval.copy()
+
+        for i, (phase, duration) in enumerate(copy_interval):
+            self.adjust_time(phase, duration)
+            del self._interval[i]
+            print(self._interval)
+
+        self.set_current_time_label("Done", 0)
 
 root = tk.Tk()
-root.geometry('300x200')
+root.attributes('-topmost', True)
 app = Application(master=root)
 app.mainloop()
 
