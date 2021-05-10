@@ -87,12 +87,13 @@ class Application(tk.Frame):
 
         copy_interval = self._interval.copy()
 
-        for i, (phase, duration) in enumerate(copy_interval):
+        for phase, duration in copy_interval:
             self.adjust_time(phase, duration)
-            del self._interval[i]
-            print(self._interval)
+            del self._interval[0]
 
-        self.set_current_time_label("Done", 0)
+        self._current_phase = "Done"
+        self._current_time = 0
+        self.set_current_time_label()
 
 root = tk.Tk()
 root.attributes('-topmost', True)
