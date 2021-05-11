@@ -41,7 +41,6 @@ class Application(tk.Frame):
 
         self._interval = []
         self._current_time = 0
-        self._current_phase = ""
         self._current_session = -1
         self._pause = False
 
@@ -117,7 +116,6 @@ class Application(tk.Frame):
         else:
             raise KeyError(f"phase {phase} not known.")
 
-        self._current_phase = phase
         self._current_time = remaining_duration
         self.set_current_time_label()
         i = 0
@@ -157,7 +155,6 @@ class Application(tk.Frame):
                 break
 
         if not self._pause:
-            self._current_phase = ""
             self._current_time = 0
             sound_end()
         self.set_current_time_label()

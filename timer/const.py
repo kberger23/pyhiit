@@ -1,2 +1,2 @@
-DEBUG = True
+DEBUG = False
 DEBUG_INTERVAL_TIME = 2
