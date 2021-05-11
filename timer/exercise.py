@@ -26,7 +26,7 @@ class Pause(Exercise):
 
     @property
     def identifier(self):
-        return "pause"
+        return "Pause"
 
     @property
     def round_duration(self):
@@ -40,7 +40,7 @@ class Init(Exercise):
 
     @property
     def identifier(self):
-        return "init"
+        return "Init"
 
     @property
     def round_duration(self):

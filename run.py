@@ -50,7 +50,6 @@ class Application(tk.Frame):
         self.create_widgets()
         self.init_interval()
 
-
     def create_widgets(self):
 
         self.bottom_frame = tk.Frame(self)
@@ -66,17 +65,13 @@ class Application(tk.Frame):
         self.pause["command"] = self.pause_command
         self.pause.pack(in_=self.bottom_frame, side="right")
 
-        self.exercise = tk.Label(self, width=18, height=1, font=tkFont.Font(family="Lucida Grande", size=40))
+        self.exercise = tk.Label(self, width=24, height=1, font=tkFont.Font(family="Lucida Grande", size=40))
         self.set_exercise_label("Exercise")
         self.exercise.pack(side="top")
 
         self.current_timer = tk.Label(self, width=18, height=2, font=tkFont.Font(family="Lucida Grande", size=60))
         self.set_current_time_label()
         self.current_timer.pack(side="top")
-
-
-        #self.quit = tk.Button(self, text="QUIT", fg="red", command=self.master.destroy)
-        #self.quit.pack(side="bottom")
 
     def init_interval(self):
 
@@ -106,7 +101,7 @@ class Application(tk.Frame):
         self.update()
 
     def set_current_time_label(self, color="white"):
-        self.current_timer["text"] = f"[{self._current_session + 1}/{len(train.interval)}]{self._current_phase:10}{max(self._current_time,0):5.2f}s"
+        self.current_timer["text"] = f"[{self._current_session + 1}/{len(train.interval)}]{max(self._current_time,0):5.2f}s"
         self.current_timer.config(bg=color)
 
     def adjust_time(self, phase: str, remaining_duration: float, total_time: float):
@@ -143,7 +138,7 @@ class Application(tk.Frame):
 
         for i, (phase, session, remaining_duration, _exercise) in enumerate(source_interval):
             if _exercise.identifier == exercise.Pause().identifier or _exercise.identifier == exercise.Init().identifier:
-                self.set_exercise_label(source_interval[i + 1][-1].identifier)
+                self.set_exercise_label(f"{_exercise.identifier}: {source_interval[i + 1][-1].identifier} next")
             else:
                 self.set_exercise_label(_exercise.identifier)
 
