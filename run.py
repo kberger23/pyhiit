@@ -16,7 +16,7 @@ class Training:
 
     @property
     def interval(self):
-        return [ex() for ex in self._exercises for _ in range(self._number_of_round)]
+        return [ex() for _ in range(self._number_of_round) for ex in self._exercises]
 
 
 train = Training([exercise.PullUps, exercise.PullUpsWide], 3)
@@ -66,9 +66,14 @@ class Application(tk.Frame):
         self.pause["command"] = self.pause_command
         self.pause.pack(in_=self.bottom_frame, side="right")
 
+        self.exercise = tk.Label(self, width=18, height=1, font=tkFont.Font(family="Lucida Grande", size=40))
+        self.set_exercise_label("Exercise")
+        self.exercise.pack(side="top")
+
         self.current_timer = tk.Label(self, width=18, height=2, font=tkFont.Font(family="Lucida Grande", size=60))
         self.set_current_time_label()
         self.current_timer.pack(side="top")
+
 
         #self.quit = tk.Button(self, text="QUIT", fg="red", command=self.master.destroy)
         #self.quit.pack(side="bottom")
@@ -77,11 +82,11 @@ class Application(tk.Frame):
 
         self._pause = False
         self._interval = []
-        self._interval.append((self.READY, -1, exercise.Init().round_duration, exercise.Init().round_duration))
+        self._interval.append((self.READY, -1, exercise.Init().round_duration, exercise.Init()))
         for j, exer in enumerate(train.interval):
             if not j == 0:
-                self._interval.append((self.PAUSE, j, exercise.Pause().round_duration, exercise.Pause().round_duration))
-            self._interval.append((self.RUN, j, exer.round_duration, exer.round_duration))
+                self._interval.append((self.PAUSE, j, exercise.Pause().round_duration, exercise.Pause()))
+            self._interval.append((self.RUN, j, exer.round_duration, exer))
 
     def pause_command(self):
         self._pause = True
@@ -95,6 +100,10 @@ class Application(tk.Frame):
         self.pause["command"] = self.pause_command
         self.update()
         self.interval_cycle()
+
+    def set_exercise_label(self, exe: str):
+        self.exercise["text"] = exe
+        self.update()
 
     def set_current_time_label(self, color="white"):
         self.current_timer["text"] = f"[{self._current_session + 1}/{len(train.interval)}]{self._current_phase:10}{max(self._current_time,0):5.2f}s"
@@ -132,9 +141,15 @@ class Application(tk.Frame):
 
         copy_interval = self._interval.copy()
 
-        for phase, session, remaining_duration, total_duration in copy_interval:
+        for phase, session, remaining_duration, _exercise in copy_interval:
+            if _exercise.identifier == exercise.Pause().identifier or _exercise.identifier == exercise.Init().identifier:
+                print(copy_interval)
+                self.set_exercise_label(copy_interval[1][-1].identifier)
+            else:
+                self.set_exercise_label(_exercise.identifier)
+
             self._current_session = session
-            self.adjust_time(phase, remaining_duration, total_duration)
+            self.adjust_time(phase, remaining_duration, _exercise.round_duration)
             if self._current_time < 1E-6:
                 del self._interval[0]
                 if phase == self.RUN:
@@ -143,7 +158,7 @@ class Application(tk.Frame):
                     sound_begin()
                 time.sleep(0.5)
             else:
-                self._interval[0] = (phase, session, self._current_time, total_duration)
+                self._interval[0] = (phase, session, self._current_time, _exercise.round_duration)
             if self._pause:
                 break
 
