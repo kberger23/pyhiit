@@ -8,7 +8,7 @@ import tkinter.font as tkFont
 
 from colour import Color
 
-
+init = 5
 interval = [5]*2
 pause = 2
 
@@ -23,6 +23,7 @@ def sound_end():
 
 class Application(tk.Frame):
 
+    READY = "Start in"
     PAUSE = "Pause"
     RUN = "Run"
 
@@ -31,7 +32,8 @@ class Application(tk.Frame):
 
         self._interval = []
         self._current_time = 0
-        self._current_phase = "Init"
+        self._current_phase = ""
+        self._current_session = -1
         self._pause = False
 
         self.master = master
@@ -45,17 +47,17 @@ class Application(tk.Frame):
         self.bottom_frame = tk.Frame(self)
         self.bottom_frame.pack(side="bottom", fill="both", expand=True)
 
-        self.start = tk.Button(self, width=8, height=2, font=tkFont.Font(family="Lucida Grande", size=20))
+        self.start = tk.Button(self, width=8, height=2, font=tkFont.Font(family="Lucida Grande", size=40))
         self.start["text"] = "Start"
         self.start["command"] = self.start_interval_cycle
         self.start.pack(in_=self.bottom_frame, side="left")
 
-        self.pause = tk.Button(self, width=8, height=2, font=tkFont.Font(family="Lucida Grande", size=20))
+        self.pause = tk.Button(self, width=8, height=2, font=tkFont.Font(family="Lucida Grande", size=40))
         self.pause["text"] = "Pause"
         self.pause["command"] = self.pause_command
         self.pause.pack(in_=self.bottom_frame, side="right")
 
-        self.current_timer = tk.Label(self, width=14, height=3, font=tkFont.Font(family="Lucida Grande", size=20))
+        self.current_timer = tk.Label(self, width=18, height=2, font=tkFont.Font(family="Lucida Grande", size=60))
         self.set_current_time_label()
         self.current_timer.pack(side="top")
 
@@ -67,9 +69,11 @@ class Application(tk.Frame):
         self._pause = False
         self._interval = []
 
+        self._interval.append((self.READY, -1, init, init))
         for j, inter in enumerate(interval):
-            self._interval.append((self.PAUSE, pause, pause))
-            self._interval.append((self.RUN, inter, inter))
+            if not j == 0:
+                self._interval.append((self.PAUSE, j, pause, pause))
+            self._interval.append((self.RUN, j, inter, inter))
 
     def pause_command(self):
         self._pause = True
@@ -84,9 +88,8 @@ class Application(tk.Frame):
         self.update()
         self.interval_cycle()
 
-
     def set_current_time_label(self, color="white"):
-        self.current_timer["text"] = f"{self._current_phase:10}{max(self._current_time,0):5.2f}s"
+        self.current_timer["text"] = f"[{self._current_session + 1}/{len(interval)}]{self._current_phase:10}{max(self._current_time,0):5.2f}s"
         self.current_timer.config(bg=color)
 
     def adjust_time(self, phase: str, remaining_duration: float, total_time: float):
@@ -97,6 +100,8 @@ class Application(tk.Frame):
             colors = list(Color("green").range_to(Color("red"), int(total_time / label_refresh_time) + 1))
         elif phase == self.RUN:
             colors = list(Color("red").range_to(Color("green"), int(total_time / label_refresh_time) + 1))
+        elif phase == self.READY:
+            colors = list(Color("white").range_to(Color("green"), int(total_time / label_refresh_time) + 1))
         else:
             raise KeyError(f"phase {phase} not known.")
 
@@ -119,26 +124,26 @@ class Application(tk.Frame):
 
         copy_interval = self._interval.copy()
 
-        for phase, remaining_duration, total_duration in copy_interval:
+        for phase, session, remaining_duration, total_duration in copy_interval:
+            self._current_session = session
             self.adjust_time(phase, remaining_duration, total_duration)
             if self._current_time < 1E-6:
                 del self._interval[0]
                 if phase == self.RUN:
                     sound_end()
-                if phase == self.PAUSE:
+                if phase == self.PAUSE or phase == self.READY:
                     sound_begin()
                 time.sleep(0.5)
             else:
-                self._interval[0] = (phase, self._current_time, total_duration)
+                self._interval[0] = (phase, session, self._current_time, total_duration)
             if self._pause:
                 break
 
-        self.set_current_time_label()
-
         if not self._pause:
-            self._current_phase = "Done"
+            self._current_phase = ""
             self._current_time = 0
             sound_end()
+        self.set_current_time_label()
 
 
 root = tk.Tk()
