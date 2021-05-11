@@ -54,7 +54,7 @@ class PullUps(Exercise):
 
     @property
     def identifier(self):
-        return "pull-ups"
+        return "Pull-ups"
 
     @property
     def round_duration(self):

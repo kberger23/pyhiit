@@ -139,12 +139,11 @@ class Application(tk.Frame):
 
     def interval_cycle(self):
 
-        copy_interval = self._interval.copy()
+        source_interval = self._interval.copy()
 
-        for phase, session, remaining_duration, _exercise in copy_interval:
+        for i, (phase, session, remaining_duration, _exercise) in enumerate(source_interval):
             if _exercise.identifier == exercise.Pause().identifier or _exercise.identifier == exercise.Init().identifier:
-                print(copy_interval)
-                self.set_exercise_label(copy_interval[1][-1].identifier)
+                self.set_exercise_label(source_interval[i + 1][-1].identifier)
             else:
                 self.set_exercise_label(_exercise.identifier)
 
@@ -158,7 +157,7 @@ class Application(tk.Frame):
                     sound_begin()
                 time.sleep(0.5)
             else:
-                self._interval[0] = (phase, session, self._current_time, _exercise.round_duration)
+                self._interval[0] = (phase, session, self._current_time, _exercise)
             if self._pause:
                 break
 
