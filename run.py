@@ -1,16 +1,28 @@
-import time
-import numpy as np
-
-from playsound import playsound
-
 import tkinter as tk
 import tkinter.font as tkFont
 
+import time
+from playsound import playsound
 from colour import Color
 
-init = 5
-interval = [5]*2
+from timer import exercise
+
+init = 1
 pause = 2
+
+
+class Training:
+
+    def __init__(self, exercises: list, number_of_round: int):
+        self._exercises = exercises
+        self._number_of_round = number_of_round
+
+    @property
+    def interval(self):
+        return [ex() for ex in self._exercises for _ in range(self._number_of_round)]
+
+
+train = Training([exercise.PullUps, exercise.PullUpsWide], 3)
 
 
 def sound_begin():
@@ -70,10 +82,10 @@ class Application(tk.Frame):
         self._interval = []
 
         self._interval.append((self.READY, -1, init, init))
-        for j, inter in enumerate(interval):
+        for j, exercise in enumerate(train.interval):
             if not j == 0:
                 self._interval.append((self.PAUSE, j, pause, pause))
-            self._interval.append((self.RUN, j, inter, inter))
+            self._interval.append((self.RUN, j, exercise.round_duration, exercise.round_duration))
 
     def pause_command(self):
         self._pause = True
@@ -89,7 +101,7 @@ class Application(tk.Frame):
         self.interval_cycle()
 
     def set_current_time_label(self, color="white"):
-        self.current_timer["text"] = f"[{self._current_session + 1}/{len(interval)}]{self._current_phase:10}{max(self._current_time,0):5.2f}s"
+        self.current_timer["text"] = f"[{self._current_session + 1}/{len(train.interval)}]{self._current_phase:10}{max(self._current_time,0):5.2f}s"
         self.current_timer.config(bg=color)
 
     def adjust_time(self, phase: str, remaining_duration: float, total_time: float):
