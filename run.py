@@ -68,8 +68,8 @@ class Application(tk.Frame):
         self._interval = []
 
         for j, inter in enumerate(interval):
-            self._interval.append((self.PAUSE, pause))
-            self._interval.append((self.RUN, inter))
+            self._interval.append((self.PAUSE, pause, pause))
+            self._interval.append((self.RUN, inter, inter))
 
     def pause_command(self):
         self._pause = True
@@ -89,7 +89,7 @@ class Application(tk.Frame):
         self.current_timer["text"] = f"{self._current_phase:10}{max(self._current_time,0):5.2f}s"
         self.current_timer.config(bg=color)
 
-    def adjust_time(self, phase: str, total_time: float):
+    def adjust_time(self, phase: str, remaining_duration: float, total_time: float):
 
         label_refresh_time = 0.01
 
@@ -101,7 +101,7 @@ class Application(tk.Frame):
             raise KeyError(f"phase {phase} not known.")
 
         self._current_phase = phase
-        self._current_time = total_time
+        self._current_time = remaining_duration
         self.set_current_time_label()
         i = 0
         while self._current_time > 1E-6 and not self._pause:
@@ -120,12 +120,12 @@ class Application(tk.Frame):
 
         copy_interval = self._interval.copy()
 
-        for phase, duration in copy_interval:
-            self.adjust_time(phase, duration)
+        for phase, remaining_duration, total_duration in copy_interval:
+            self.adjust_time(phase, remaining_duration, total_duration)
             if self._current_time < 1E-6:
                 del self._interval[0]
             else:
-                self._interval[0] = (phase, self._current_time)
+                self._interval[0] = (phase, self._current_time, total_duration)
             if self._pause:
                 break
 
