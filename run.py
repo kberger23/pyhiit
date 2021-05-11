@@ -14,11 +14,11 @@ pause = 2
 
 
 def sound_begin():
-    playsound('sound/bell_short_1.mp3')
+    playsound('sound/bell_short_1_trimmed.mp3', False)
 
 
 def sound_end():
-    playsound('sound/bell_long_1.mp3')
+    playsound('sound/bell_long_1_trimmed.mp3', False)
 
 
 class Application(tk.Frame):
@@ -107,7 +107,6 @@ class Application(tk.Frame):
         while self._current_time > 1E-6 and not self._pause:
             time.sleep(label_refresh_time)
             self._current_time -= label_refresh_time
-            print(self._current_time, len(colors), i)
             self.set_current_time_label(color=colors[i])
             self.update()
             i += 1
@@ -124,6 +123,11 @@ class Application(tk.Frame):
             self.adjust_time(phase, remaining_duration, total_duration)
             if self._current_time < 1E-6:
                 del self._interval[0]
+                if phase == self.RUN:
+                    sound_end()
+                if phase == self.PAUSE:
+                    sound_begin()
+                time.sleep(0.5)
             else:
                 self._interval[0] = (phase, self._current_time, total_duration)
             if self._pause:
@@ -134,6 +138,7 @@ class Application(tk.Frame):
         if not self._pause:
             self._current_phase = "Done"
             self._current_time = 0
+            sound_end()
 
 
 root = tk.Tk()
