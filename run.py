@@ -32,10 +32,6 @@ def sound_end():
 
 class Application(tk.Frame):
 
-    READY = "Start in"
-    PAUSE = "Pause"
-    RUN = "Run"
-
     def __init__(self, master=None):
         super().__init__(master)
 
@@ -76,11 +72,11 @@ class Application(tk.Frame):
 
         self._pause = False
         self._interval = []
-        self._interval.append((self.READY, -1, exercise.Init().round_duration, exercise.Init()))
+        self._interval.append((-1, exercise.Init().round_duration, exercise.Init()))
         for j, exer in enumerate(train.interval):
             if not j == 0:
-                self._interval.append((self.PAUSE, j, exercise.Pause().round_duration, exercise.Pause()))
-            self._interval.append((self.RUN, j, exer.round_duration, exer))
+                self._interval.append((j, exercise.Pause().round_duration, exercise.Pause()))
+            self._interval.append((j, exer.round_duration, exer))
 
     def pause_command(self):
         self._pause = True
@@ -107,14 +103,12 @@ class Application(tk.Frame):
 
         label_refresh_time = 0.01
 
-        if phase == self.PAUSE:
+        if self._is_pause(phase):
             colors = list(Color("green").range_to(Color("red"), int(total_time / label_refresh_time) + 1))
-        elif phase == self.RUN:
-            colors = list(Color("red").range_to(Color("green"), int(total_time / label_refresh_time) + 1))
-        elif phase == self.READY:
-            colors = list(Color("white").range_to(Color("green"), int(total_time / label_refresh_time) + 1))
+        elif self._is_init(phase):
+            colors = list(Color("white").range_to(Color("red"), int(total_time / label_refresh_time) + 1))
         else:
-            raise KeyError(f"phase {phase} not known.")
+            colors = list(Color("red").range_to(Color("green"), int(total_time / label_refresh_time) + 1))
 
         self._current_time = remaining_duration
         self.set_current_time_label()
@@ -130,27 +124,38 @@ class Application(tk.Frame):
         self.init_interval()
         self.interval_cycle()
 
+    @staticmethod
+    def _is_pause(identifier):
+        return identifier == exercise.Pause().identifier
+
+    @staticmethod
+    def _is_init(identifier):
+        return identifier == exercise.Init().identifier
+
+    def _is_pause_or_init(self, identifier):
+        return self._is_pause(identifier) or self._is_init(identifier)
+
     def interval_cycle(self):
 
         source_interval = self._interval.copy()
 
-        for i, (phase, session, remaining_duration, _exercise) in enumerate(source_interval):
-            if _exercise.identifier == exercise.Pause().identifier or _exercise.identifier == exercise.Init().identifier:
+        for i, ( session, remaining_duration, _exercise) in enumerate(source_interval):
+            if self._is_pause_or_init(_exercise.identifier):
                 self.set_exercise_label(f"{_exercise.identifier}: {source_interval[i + 1][-1].identifier} next")
             else:
                 self.set_exercise_label(_exercise.identifier)
 
             self._current_session = session
-            self.adjust_time(phase, remaining_duration, _exercise.round_duration)
+            self.adjust_time(_exercise.identifier, remaining_duration, _exercise.round_duration)
             if self._current_time < 1E-6:
                 del self._interval[0]
-                if phase == self.RUN:
-                    sound_end()
-                if phase == self.PAUSE or phase == self.READY:
+                if self._is_pause_or_init(_exercise.identifier):
                     sound_begin()
+                else:
+                    sound_end()
                 time.sleep(0.5)
             else:
-                self._interval[0] = (phase, session, self._current_time, _exercise)
+                self._interval[0] = (session, self._current_time, _exercise)
             if self._pause:
                 break
 
