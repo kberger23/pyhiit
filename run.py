@@ -39,10 +39,19 @@ class Application(tk.Frame):
 
 
     def create_widgets(self):
+
+        self.bottom_frame = tk.Frame(self)
+        self.bottom_frame.pack(side="bottom", fill="both", expand=True)
+
         self.start = tk.Button(self, width=8, height=2, font=tkFont.Font(family="Lucida Grande", size=20))
-        self.start["text"] = "Start timer"
+        self.start["text"] = "Start"
         self.start["command"] = self.interval_cycle
-        self.start.pack(side="bottom")
+        self.start.pack(in_=self.bottom_frame, side="left")
+
+        self.pause = tk.Button(self, width=8, height=2, font=tkFont.Font(family="Lucida Grande", size=20))
+        self.pause["text"] = "Pause"
+        self.pause["command"] = self.pause_command
+        self.pause.pack(in_=self.bottom_frame, side="right")
 
         self.current_timer = tk.Label(self, width=14, height=3, font=tkFont.Font(family="Lucida Grande", size=20))
         self.set_current_time_label()
@@ -56,6 +65,9 @@ class Application(tk.Frame):
         for j, inter in enumerate(interval):
             self._interval.append((self.PAUSE, pause))
             self._interval.append((self.RUN, inter))
+
+    def pause_command(self):
+        print("Pause")
 
     def set_current_time_label(self, color="white"):
         self.current_timer["text"] = f"{self._current_phase:10}{max(self._current_time,0):5.2f}s"
