@@ -19,6 +19,34 @@ class Exercise(ABC):
         pass
 
 
+class Pause(Exercise):
+
+    def __init__(self):
+        super().__init__()
+
+    @property
+    def identifier(self):
+        return "pause"
+
+    @property
+    def round_duration(self):
+        return 7 if not DEBUG else DEBUG_INTERVAL_TIME
+
+
+class Init(Exercise):
+
+    def __init__(self):
+        super().__init__()
+
+    @property
+    def identifier(self):
+        return "init"
+
+    @property
+    def round_duration(self):
+        return 10 if not DEBUG else DEBUG_INTERVAL_TIME
+
+
 class PullUps(Exercise):
 
     def __init__(self):

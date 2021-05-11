@@ -6,7 +6,6 @@ from playsound import playsound
 from colour import Color
 
 from timer import exercise
-from timer.const import init, pause
 
 
 class Training:
@@ -78,11 +77,11 @@ class Application(tk.Frame):
 
         self._pause = False
         self._interval = []
-        self._interval.append((self.READY, -1, init, init))
-        for j, exercise in enumerate(train.interval):
+        self._interval.append((self.READY, -1, exercise.Init().round_duration, exercise.Init().round_duration))
+        for j, exer in enumerate(train.interval):
             if not j == 0:
-                self._interval.append((self.PAUSE, j, pause, pause))
-            self._interval.append((self.RUN, j, exercise.round_duration, exercise.round_duration))
+                self._interval.append((self.PAUSE, j, exercise.Pause().round_duration, exercise.Pause().round_duration))
+            self._interval.append((self.RUN, j, exer.round_duration, exer.round_duration))
 
     def pause_command(self):
         self._pause = True

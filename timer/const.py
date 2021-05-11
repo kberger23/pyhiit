@@ -1,5 +1,2 @@
-init = 10
-pause = 7
-
-DEBUG = False
+DEBUG = True
 DEBUG_INTERVAL_TIME = 2
