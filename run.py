@@ -6,9 +6,7 @@ from playsound import playsound
 from colour import Color
 
 from timer import exercise
-
-init = 1
-pause = 2
+from timer.const import init, pause
 
 
 class Training:
@@ -80,7 +78,6 @@ class Application(tk.Frame):
 
         self._pause = False
         self._interval = []
-
         self._interval.append((self.READY, -1, init, init))
         for j, exercise in enumerate(train.interval):
             if not j == 0:

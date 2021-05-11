@@ -1,5 +1,7 @@
 from abc import ABC, abstractmethod
 
+from .const import DEBUG, DEBUG_INTERVAL_TIME
+
 
 class Exercise(ABC):
 
@@ -28,7 +30,7 @@ class PullUps(Exercise):
 
     @property
     def round_duration(self):
-        return 2
+        return 30 if not DEBUG else DEBUG_INTERVAL_TIME
 
 
 class PullUpsWide(Exercise):
@@ -42,4 +44,4 @@ class PullUpsWide(Exercise):
 
     @property
     def round_duration(self):
-        return 2
+        return 30 if not DEBUG else DEBUG_INTERVAL_TIME
