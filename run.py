@@ -29,13 +29,15 @@ class Application(tk.Frame):
     def __init__(self, master=None):
         super().__init__(master)
 
+        self._interval = []
         self._current_time = 0
         self._current_phase = "Init"
+        self._pause = False
 
         self.master = master
         self.pack()
         self.create_widgets()
-        self.create_interval_shit()
+        self.init_interval()
 
 
     def create_widgets(self):
@@ -45,7 +47,7 @@ class Application(tk.Frame):
 
         self.start = tk.Button(self, width=8, height=2, font=tkFont.Font(family="Lucida Grande", size=20))
         self.start["text"] = "Start"
-        self.start["command"] = self.interval_cycle
+        self.start["command"] = self.start_interval_cycle
         self.start.pack(in_=self.bottom_frame, side="left")
 
         self.pause = tk.Button(self, width=8, height=2, font=tkFont.Font(family="Lucida Grande", size=20))
@@ -60,14 +62,28 @@ class Application(tk.Frame):
         #self.quit = tk.Button(self, text="QUIT", fg="red", command=self.master.destroy)
         #self.quit.pack(side="bottom")
 
-    def create_interval_shit(self):
+    def init_interval(self):
+
+        self._pause = False
         self._interval = []
+
         for j, inter in enumerate(interval):
             self._interval.append((self.PAUSE, pause))
             self._interval.append((self.RUN, inter))
 
     def pause_command(self):
-        print("Pause")
+        self._pause = True
+        self.pause["text"] = "Resume"
+        self.pause["command"] = self.resume_command
+        self.update()
+
+    def resume_command(self):
+        self._pause = False
+        self.pause["text"] = "Pause"
+        self.pause["command"] = self.pause_command
+        self.update()
+        self.interval_cycle()
+
 
     def set_current_time_label(self, color="white"):
         self.current_timer["text"] = f"{self._current_phase:10}{max(self._current_time,0):5.2f}s"
@@ -82,18 +98,23 @@ class Application(tk.Frame):
         elif phase == self.RUN:
             colors = list(Color("red").range_to(Color("green"), int(total_time / label_refresh_time) + 1))
         else:
-            KeyError(f"phase {phase} not known.")
+            raise KeyError(f"phase {phase} not known.")
 
         self._current_phase = phase
         self._current_time = total_time
         self.set_current_time_label()
         i = 0
-        while self._current_time > -label_refresh_time / 2:
+        while self._current_time > 1E-6 and not self._pause:
             time.sleep(label_refresh_time)
             self._current_time -= label_refresh_time
+            print(self._current_time, len(colors), i)
             self.set_current_time_label(color=colors[i])
             self.update()
             i += 1
+
+    def start_interval_cycle(self):
+        self.init_interval()
+        self.interval_cycle()
 
     def interval_cycle(self):
 
@@ -101,11 +122,19 @@ class Application(tk.Frame):
 
         for phase, duration in copy_interval:
             self.adjust_time(phase, duration)
-            del self._interval[0]
+            if self._current_time < 1E-6:
+                del self._interval[0]
+            else:
+                self._interval[0] = (phase, self._current_time)
+            if self._pause:
+                break
 
-        self._current_phase = "Done"
-        self._current_time = 0
         self.set_current_time_label()
+
+        if not self._pause:
+            self._current_phase = "Done"
+            self._current_time = 0
+
 
 root = tk.Tk()
 root.attributes('-topmost', True)
