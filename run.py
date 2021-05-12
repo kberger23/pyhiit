@@ -6,7 +6,6 @@ from playsound import playsound
 from colour import Color
 import json
 
-from timer import exercise
 from timer.const import EXERCISE_JSON, DEBUG, DEBUG_INTERVAL_TIME
 
 
@@ -161,11 +160,11 @@ class Application(tk.Frame):
 
     @staticmethod
     def _is_pause(identifier):
-        return identifier == exercise.Pause().identifier
+        return identifier == train.pause.identifier
 
     @staticmethod
     def _is_init(identifier):
-        return identifier == exercise.Init().identifier
+        return identifier == train.init.identifier
 
     def _is_pause_or_init(self, identifier):
         return self._is_pause(identifier) or self._is_init(identifier)
