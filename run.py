@@ -24,6 +24,14 @@ class Exercise:
         return self._dict["duration"] if not DEBUG else DEBUG_INTERVAL_TIME
 
 
+class Runner:
+
+    def __init__(self, session_index: int, remaining_duration: float, exercise: Exercise):
+        self.session = session_index
+        self.remaining_duration = remaining_duration
+        self.exercise = exercise
+
+
 class Training:
 
     PAUSE = "Pause"
@@ -49,11 +57,11 @@ class Training:
     def create_interval(self):
 
         _interval = list()
-        _interval.append((-1, self.init.round_duration, self.init))
+        _interval.append(Runner(-1, self.init.round_duration, self.init))
         for j, exer in enumerate(self.interval):
             if not j == 0:
-                _interval.append((j, self.pause.round_duration, self.pause))
-            _interval.append((j, exer.round_duration, exer))
+                _interval.append(Runner(j, self.pause.round_duration, self.pause))
+            _interval.append(Runner(j, exer.round_duration, exer))
         return _interval
 
     @property
@@ -180,23 +188,23 @@ class Application(tk.Frame):
 
         source_interval = self._interval.copy()
 
-        for i, ( session, remaining_duration, _exercise) in enumerate(source_interval):
-            if self._is_pause_or_init(_exercise.identifier):
-                self.set_exercise_label(f"{_exercise.identifier}: {source_interval[i + 1][-1].identifier} next")
+        for i, runner in enumerate(source_interval):
+            if self._is_pause_or_init(runner.exercise.identifier):
+                self.set_exercise_label(f"{runner.exercise.identifier}: {source_interval[i + 1].exercise.identifier} next")
             else:
-                self.set_exercise_label(_exercise.identifier)
+                self.set_exercise_label(runner.exercise.identifier)
 
-            self._current_session = session
-            self.adjust_time(_exercise.identifier, remaining_duration, _exercise.round_duration)
+            self._current_session = runner.session
+            self.adjust_time(runner.exercise.identifier, runner.remaining_duration, runner.exercise.round_duration)
             if self._current_time < 1E-6:
-                if self._is_pause_or_init(_exercise.identifier):
+                if self._is_pause_or_init(runner.exercise.identifier):
                     sound_begin()
                 else:
                     sound_end()
                 time.sleep(0.5)
                 del self._interval[0]
             else:
-                self._interval[0] = (session, self._current_time, _exercise)
+                self._interval[0] = Runner(runner.session, self._current_time, runner.exercise)
             if self._pause:
                 break
 
