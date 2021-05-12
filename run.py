@@ -32,6 +32,9 @@ class Training:
     WIDE_PULL_UPS = "Wide pull-ups"
     BACK_ROWS = "Back rows"
 
+    WIDE_PUSH_UPS = "Wide push-ups"
+    PUSH_UPS = "Push-ups"
+
     def __init__(self, exercises: list, number_of_round: int):
         self._exercises = exercises
         self._number_of_round = number_of_round
@@ -52,7 +55,7 @@ class Training:
         return Exercise(self.PAUSE, self._data[self.PAUSE])
 
 
-train = Training([Training.WIDE_PULL_UPS, Training.BACK_ROWS], 3)
+train = Training([Training.PUSH_UPS, Training.WIDE_PUSH_UPS], 3)
 
 
 def sound_begin():
