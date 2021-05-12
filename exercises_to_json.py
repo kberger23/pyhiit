@@ -22,5 +22,8 @@ Init = dict()
 Init["duration"] = 10
 #add_exercise_to_json(Init, "Init")
 
-add_exercise_to_json({"duration": 30}, "Wide pull-ups")
-add_exercise_to_json({"duration": 30}, "Back rows")
+#add_exercise_to_json({"duration": 30}, "Wide pull-ups")
+#add_exercise_to_json({"duration": 30}, "Back rows")
+
+#add_exercise_to_json({"duration": 30}, "Wide push-ups")
+#add_exercise_to_json({"duration": 30}, "Push ups")

@@ -8,7 +8,13 @@
     "Pause": {
         "duration": 7
     },
+    "Push ups": {
+        "duration": 30
+    },
     "Wide pull-ups": {
+        "duration": 30
+    },
+    "Wide push-ups": {
         "duration": 30
     }
 }
