@@ -4,22 +4,56 @@ import tkinter.font as tkFont
 import time
 from playsound import playsound
 from colour import Color
+import json
 
 from timer import exercise
+from timer.const import EXERCISE_JSON, DEBUG, DEBUG_INTERVAL_TIME
+
+
+class Exercise:
+
+    def __init__(self, name, exercise_dict):
+        self._dict = exercise_dict
+        self._name = name
+
+    @property
+    def identifier(self):
+        return self._name
+
+    @property
+    def round_duration(self):
+        return self._dict["duration"] if not DEBUG else DEBUG_INTERVAL_TIME
 
 
 class Training:
+
+    PAUSE = "Pause"
+    INIT = "Init"
+
+    WIDE_PULL_UPS = "Wide pull-ups"
+    BACK_ROWS = "Back rows"
 
     def __init__(self, exercises: list, number_of_round: int):
         self._exercises = exercises
         self._number_of_round = number_of_round
 
+        with open(EXERCISE_JSON, "r+") as file:
+            self._data = json.load(file)
+
     @property
     def interval(self):
-        return [ex() for _ in range(self._number_of_round) for ex in self._exercises]
+        return [Exercise(ex, self._data[ex]) for _ in range(self._number_of_round) for ex in self._exercises]
+
+    @property
+    def init(self):
+        return Exercise(self.INIT, self._data[self.INIT])
+
+    @property
+    def pause(self):
+        return Exercise(self.PAUSE, self._data[self.PAUSE])
 
 
-train = Training([exercise.PullUps, exercise.PullUpsWide], 3)
+train = Training([Training.WIDE_PULL_UPS, Training.BACK_ROWS], 3)
 
 
 def sound_begin():
@@ -72,10 +106,11 @@ class Application(tk.Frame):
 
         self._pause = False
         self._interval = []
-        self._interval.append((-1, exercise.Init().round_duration, exercise.Init()))
+
+        self._interval.append((-1, train.init.round_duration, train.init))
         for j, exer in enumerate(train.interval):
             if not j == 0:
-                self._interval.append((j, exercise.Pause().round_duration, exercise.Pause()))
+                self._interval.append((j, train.pause.round_duration, train.pause))
             self._interval.append((j, exer.round_duration, exer))
 
     def pause_command(self):

@@ -1,0 +1,14 @@
+{
+    "Back rows": {
+        "duration": 30
+    },
+    "Init": {
+        "duration": 10
+    },
+    "Pause": {
+        "duration": 7
+    },
+    "Wide pull-ups": {
+        "duration": 30
+    }
+}
