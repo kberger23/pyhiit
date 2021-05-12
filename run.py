@@ -185,18 +185,19 @@ class Application(tk.Frame):
             self._current_session = session
             self.adjust_time(_exercise.identifier, remaining_duration, _exercise.round_duration)
             if self._current_time < 1E-6:
-                del self._interval[0]
                 if self._is_pause_or_init(_exercise.identifier):
                     sound_begin()
                 else:
                     sound_end()
                 time.sleep(0.5)
+                del self._interval[0]
             else:
                 self._interval[0] = (session, self._current_time, _exercise)
             if self._pause:
                 break
 
         if not self._pause:
+            self.set_exercise_label("Done")
             self._current_time = 0
             sound_end()
         self.set_current_time_label()
