@@ -46,6 +46,16 @@ class Training:
     def interval(self):
         return [Exercise(ex, self._data[ex]) for _ in range(self._number_of_round) for ex in self._exercises]
 
+    def create_interval(self):
+
+        _interval = list()
+        _interval.append((-1, self.init.round_duration, self.init))
+        for j, exer in enumerate(self.interval):
+            if not j == 0:
+                _interval.append((j, self.pause.round_duration, self.pause))
+            _interval.append((j, exer.round_duration, exer))
+        return _interval
+
     @property
     def init(self):
         return Exercise(self.INIT, self._data[self.INIT])
@@ -107,13 +117,7 @@ class Application(tk.Frame):
     def init_interval(self):
 
         self._pause = False
-        self._interval = []
-
-        self._interval.append((-1, train.init.round_duration, train.init))
-        for j, exer in enumerate(train.interval):
-            if not j == 0:
-                self._interval.append((j, train.pause.round_duration, train.pause))
-            self._interval.append((j, exer.round_duration, exer))
+        self._interval = train.create_interval()
 
     def pause_command(self):
         self._pause = True
