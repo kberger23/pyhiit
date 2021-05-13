@@ -142,9 +142,9 @@ class Application(tk.Frame):
                 else:
                     sound_end()
                 time.sleep(0.2)
-                del self._train.interval[0]
+                self._train.deleteInterval(0)
             else:
-                self._train.interval[0] = Runner(runner.session, self._current_time, runner.exercise)
+                self._train[0].remaining_duration = self._current_time
             if self._pause:
                 break
 

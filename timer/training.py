@@ -22,8 +22,20 @@ class Runner:
 
     def __init__(self, session_index: int, remaining_duration: float, exercise: Exercise):
         self.session = session_index
-        self.remaining_duration = remaining_duration
+        self._remaining_duration = remaining_duration
         self.exercise = exercise
+
+    @property
+    def remaining_duration(self):
+        return self._remaining_duration
+
+    @remaining_duration.setter
+    def remaining_duration(self, value):
+        if not isinstance(value, float) and not isinstance(value, int):
+            raise TypeError(f"{value} has to be type float or int, but is {type(value)}")
+        if value < 0:
+            raise ValueError(f"{value} has to be greater equal zero.")
+        self._remaining_duration = value
 
 
 class Training:
@@ -71,6 +83,9 @@ class Training:
     def reset_interval(self):
         self._create_interval()
 
+    def deleteInterval(self, index):
+        del self._interval[index]
+
     @property
     def init(self):
         return Exercise(self.INIT, self._data[self.INIT])
@@ -78,3 +93,6 @@ class Training:
     @property
     def pause(self):
         return Exercise(self.PAUSE, self._data[self.PAUSE])
+
+    def __getitem__(self, item):
+        return self._interval[item]
