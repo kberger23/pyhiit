@@ -23,6 +23,7 @@ class Application(tk.Frame):
 
         self._current_time = 0
         self._current_session = -1
+        self._clicked_start = False
         self._pause = False
         self._train = Training([Training.PUSH_UPS, Training.WIDE_PUSH_UPS])
 
@@ -59,7 +60,6 @@ class Application(tk.Frame):
         self.sessions_entry = tk.Entry(self, width=18, textvariable=sv, font=tkFont.Font(family="Lucida Grande", size=15))
         self.sessions_entry.grid(row=3, column=1, columnspan=1, pady=4)
 
-
     def pause_command(self):
         self._pause = True
         self.pause["text"] = "Resume"
@@ -75,13 +75,17 @@ class Application(tk.Frame):
 
     def sessions_entry_command(self, sv):
 
-        number_of_rounds = sv.get()
-        try:
-            self._train.number_of_rounds = int(number_of_rounds)
-        except ValueError:
-            pass
-        self.update()
-        self.set_current_time_label()
+        if not self._clicked_start:
+            number_of_rounds = sv.get()
+            try:
+                self._train.number_of_rounds = int(number_of_rounds)
+            except ValueError:
+                pass
+            self.update()
+            self.set_current_time_label()
+
+    def _disable_session_entry(self):
+        self.sessions_entry.config(state='disabled')
 
     def set_exercise_label(self, exe: str):
         self.exercise["text"] = exe
@@ -114,6 +118,8 @@ class Application(tk.Frame):
 
     def start_interval_cycle(self):
         self._train.reset_interval()
+        self._clicked_start = True
+        self._disable_session_entry()
         self.resume_command()
 
     def _is_pause(self, identifier):
