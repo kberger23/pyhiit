@@ -77,9 +77,10 @@ class Application(tk.Frame):
         self._exercise_dropdowns[-1].grid(row=row, column=0, columnspan=1, pady=4, sticky="W")
 
         def callback(sv, _index):
-            print(_index)
-            self._train.exercises[_index - 1].round_duration = float(sv.get())
-            print(self._train.exercises[_index - 1].round_duration)
+            try:
+                self._train.exercises[_index - 1].round_duration = float(sv.get())
+            except ValueError:
+                pass
             self.update()
             self.set_current_time_label()
 
