@@ -158,18 +158,19 @@ class Training:
         return history_dict
 
     def save(self):
-        if not EXERCISE_HISTORY_JSON.is_file():
-            with open(EXERCISE_HISTORY_JSON, "w") as file:
-                histories = list()
-                histories.append(self.create_history_dict())
-                json.dump(histories, file, indent=4)
-        else:
+        histories = self.read_history()
+        histories.append(self.create_history_dict())
+        with open(EXERCISE_HISTORY_JSON, "w") as file:
+            json.dump(histories, file, indent=4)
+
+    @staticmethod
+    def read_history():
+        if EXERCISE_HISTORY_JSON.is_file():
             with open(EXERCISE_HISTORY_JSON, "r") as file:
                 histories = json.load(file)
-
-            histories.append(self.create_history_dict())
-            with open(EXERCISE_HISTORY_JSON, "w") as file:
-                json.dump(histories, file, indent=4)
+            return histories
+        else:
+            return []
 
     def __getitem__(self, item):
         return self._interval[item]

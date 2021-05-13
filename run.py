@@ -100,12 +100,23 @@ class Application(tk.Frame):
         self.pause_exercise_entry = tk.Entry(self.general, width=4, textvariable=sv, font=tkFont.Font(family="Lucida Grande", size=15))
         self.pause_exercise_entry.grid(row=4, column=3, columnspan=1, pady=4, sticky="W")
 
+        self.create_history_items()
 
-        pause_exercise_label = tk.Label(self.history, width=9, height=5, font=tkFont.Font(family="Lucida Grande", size=15))
-        pause_exercise_label["text"] = "test"
-        pause_exercise_label.config(anchor="w")
-        pause_exercise_label.grid(row=0, column=0, columnspan=1, pady=4, sticky="W")
+    def create_history_items(self):
 
+        history = self._train.read_history()
+
+        largest_number_of_exercises = 0
+        for entry in history:
+            largest_number_of_exercises = max(largest_number_of_exercises, len(entry["exercises"]))
+
+        for entry in history:
+            msg = tk.Label(self.history, width=18, height=3 + largest_number_of_exercises, font=tkFont.Font(family="Lucida Grande", size=9))
+            msg["text"] = f"{entry['date']}\nRounds:{entry['rounds']}"
+            for ex, dur in entry["exercises"].items():
+                msg["text"] = msg["text"] + f"\n{ex}: {dur:.0f}s"
+            msg.config(anchor="c")
+            msg.grid(row=0, column=0, columnspan=1, pady=4, sticky="W")
 
     def create_drop_down_exercise(self, index, default):
 
