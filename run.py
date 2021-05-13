@@ -76,11 +76,15 @@ class Application(tk.Frame):
         row = 3 + len(self._exercise_dropdowns)
         self._exercise_dropdowns[-1].grid(row=row, column=0, columnspan=1, pady=4, sticky="W")
 
-        def callback(sv):
-            self._train.exercises[len(self._exercise_dropdowns) - 1].round_duration = sv.get()
+        def callback(sv, _index):
+            print(_index)
+            self._train.exercises[_index - 1].round_duration = float(sv.get())
+            print(self._train.exercises[_index - 1].round_duration)
+            self.update()
+            self.set_current_time_label()
 
         sv = tk.StringVar(value=self._train.exercises[len(self._exercise_dropdowns) - 1].round_duration)
-        sv.trace("w", lambda name, index, mode, sv=sv: callback(sv) )
+        sv.trace("w", lambda _name, _index, _mode, _sv=sv: callback(_sv, index))
         self._exercise_durations.append(tk.Entry(self, width=4, textvariable=sv, font=tkFont.Font(family="Lucida Grande", size=15)))
         self._exercise_durations[-1].grid(row=row, column=1, columnspan=1, pady=4, sticky="W")
 

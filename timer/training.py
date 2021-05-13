@@ -8,6 +8,7 @@ class Exercise:
     def __init__(self, name, exercise_dict):
         self._dict = exercise_dict
         self._name = name
+        self._updated = False
 
     @property
     def identifier(self):
@@ -15,8 +16,17 @@ class Exercise:
 
     @property
     def round_duration(self):
-        return self._dict["duration"] if not DEBUG else DEBUG_INTERVAL_TIME
+        return self._dict["duration"] if not DEBUG or self._updated else DEBUG_INTERVAL_TIME
 
+    @round_duration.setter
+    def round_duration(self, value):
+        if not isinstance(value, float) and not isinstance(value, int):
+            raise TypeError(f"{value} has to be type float or int, but is {type(value)}")
+        if value < 0:
+            raise ValueError(f"{value} has to be greater equal zero.")
+        self._dict["duration"] = value
+        print(f"New duration is {self._dict['duration']}")
+        self._updated = True
 
 class Runner:
 
