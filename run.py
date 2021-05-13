@@ -134,8 +134,9 @@ class Application(tk.Frame):
 
     def _disable_session_choosable(self):
         self.sessions_entry.config(state='disabled')
-        for ex in self._exercise_dropdowns:
+        for ex, dur in zip(self._exercise_dropdowns, self._exercise_durations):
             ex.config(state='disabled')
+            dur.config(state='disabled')
 
         self._new_exercise.config(state='disabled')
         self._remove_exercise.config(state='disabled')
