@@ -37,8 +37,9 @@ class Application(tk.Frame):
         self.general.grid(row=0, sticky="ew")
 
         self.history = tk.Frame(self)
-        self.history.configure(width=50, height=80, padx=4, pady=2, background='white')
+        self.history.configure(width=50, height=15 * (2 + self._train.get_maximal_number_of_exercises_in_history()), padx=4, pady=2, background='white')
         self.history.grid(row=1, sticky="ew", pady=10)
+        self.history.grid_propagate(False)
 
         self.start = tk.Button(self.general, width=6, height=1, font=tkFont.Font(family="Lucida Grande", size=40))
         self.start["text"] = "Start"
@@ -106,17 +107,13 @@ class Application(tk.Frame):
 
         history = self._train.read_history()
 
-        largest_number_of_exercises = 0
-        for entry in history:
-            largest_number_of_exercises = max(largest_number_of_exercises, len(entry["exercises"]))
-
-        for entry in history:
-            msg = tk.Label(self.history, width=18, height=3 + largest_number_of_exercises, font=tkFont.Font(family="Lucida Grande", size=9))
+        for i, entry in enumerate(history):
+            msg = tk.Label(self.history, width=15, height=1 * (2 + self._train.get_maximal_number_of_exercises_in_history()), font=tkFont.Font(family="Lucida Grande", size=7))
             msg["text"] = f"{entry['date']}\nRounds:{entry['rounds']}"
             for ex, dur in entry["exercises"].items():
                 msg["text"] = msg["text"] + f"\n{ex}: {dur:.0f}s"
-            msg.config(anchor="c")
-            msg.grid(row=0, column=0, columnspan=1, pady=4, sticky="W")
+            msg.config(anchor="n")
+            msg.grid(row=0, column=i, columnspan=1, padx=4, pady=4, sticky="W")
 
     def create_drop_down_exercise(self, index, default):
 
@@ -290,6 +287,8 @@ class Application(tk.Frame):
             sound_end()
         self.set_current_time_label()
 
+#Training([Training.PUSH_UPS, Training.WIDE_PUSH_UPS]).save()
+#exit()
 
 root = tk.Tk()
 root.attributes('-topmost', True)

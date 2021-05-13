@@ -172,6 +172,13 @@ class Training:
         else:
             return []
 
+    def get_maximal_number_of_exercises_in_history(self):
+
+        largest_number_of_exercises = 0
+        for entry in self.read_history():
+            largest_number_of_exercises = max(largest_number_of_exercises, len(entry["exercises"]))
+        return largest_number_of_exercises
+
     def __getitem__(self, item):
         return self._interval[item]
 
