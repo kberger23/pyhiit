@@ -98,8 +98,10 @@ class Application(tk.Frame):
             self.update()
             self.set_current_time_label()
 
-    def _disable_session_entry(self):
+    def _disable_session_choosable(self):
         self.sessions_entry.config(state='disabled')
+        for ex in self._exercise_dropdowns:
+            ex.config(state='disabled')
 
     def choose_exercise(self, selection, index):
         print(index)
@@ -138,7 +140,7 @@ class Application(tk.Frame):
     def start_interval_cycle(self):
         self._train.reset_interval()
         self._clicked_start = True
-        self._disable_session_entry()
+        self._disable_session_choosable()
         self.resume_command()
 
     def _is_pause(self, identifier):
