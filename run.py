@@ -39,7 +39,7 @@ class Application(tk.Frame):
         self.general.grid(row=0, sticky="ew")
 
         self.history = tk.Frame(self)
-        self.history.configure(width=50, height=15.3 * (2 + self._train.history.maximal_number_of_exercises()), padx=4, pady=2, background='white')
+        self.history.configure(width=50, height=2, padx=4, pady=2, background='white')
         self.history.grid(row=1, sticky="ew", pady=10)
         self.history.grid_propagate(False)
 
@@ -106,6 +106,8 @@ class Application(tk.Frame):
         self.create_history_items()
 
     def create_history_items(self):
+
+        self.history.configure(height=15.3 * (2 + self._train.history.maximal_number_of_exercises()))
 
         history = list(reversed(self._train.history.as_list))
 
