@@ -67,6 +67,26 @@ class Application(tk.Frame):
         for i, exercise in enumerate(self._train.exercises):
             self.create_drop_down_exercise(i, exercise.identifier)
 
+        init_exercise_label = tk.Label(self, width=18, height=1, font=tkFont.Font(family="Lucida Grande", size=15))
+        init_exercise_label["text"] = "Init"
+        init_exercise_label.config(anchor="e")
+        init_exercise_label.grid(row=3, column=2, columnspan=1, pady=4, sticky="W")
+
+        sv = tk.StringVar(value=self._train.init.round_duration)
+        sv.trace("w", lambda name, index, mode, sv=sv: self.sessions_entry_command(sv))
+        init_exercise_entry = tk.Entry(self, width=4, textvariable=sv, font=tkFont.Font(family="Lucida Grande", size=15))
+        init_exercise_entry.grid(row=3, column=3, columnspan=1, pady=4, sticky="W")
+
+        pause_exercise_label = tk.Label(self, width=18, height=1, font=tkFont.Font(family="Lucida Grande", size=15))
+        pause_exercise_label["text"] = "Pause"
+        pause_exercise_label.config(anchor="e")
+        pause_exercise_label.grid(row=4, column=2, columnspan=1, pady=4, sticky="W")
+
+        sv = tk.StringVar(value=self._train.pause.round_duration)
+        sv.trace("w", lambda name, index, mode, sv=sv: self.sessions_entry_command(sv))
+        pause_exercise_entry = tk.Entry(self, width=4, textvariable=sv, font=tkFont.Font(family="Lucida Grande", size=15))
+        pause_exercise_entry.grid(row=4, column=3, columnspan=1, pady=4, sticky="W")
+
     def create_drop_down_exercise(self, index, default):
 
         self.choose_exercise(default, index)
@@ -76,16 +96,8 @@ class Application(tk.Frame):
         row = 3 + len(self._exercise_dropdowns)
         self._exercise_dropdowns[-1].grid(row=row, column=0, columnspan=1, pady=4, sticky="W")
 
-        def callback(sv, _index):
-            try:
-                self._train.exercises[_index - 1].round_duration = float(sv.get())
-            except ValueError:
-                pass
-            self.update()
-            self.set_current_time_label()
-
         sv = tk.StringVar(value=self._train.exercises[len(self._exercise_dropdowns) - 1].round_duration)
-        sv.trace("w", lambda _name, _index, _mode, _sv=sv: callback(_sv, index))
+        sv.trace("w", lambda _name, _index, _mode, _sv=sv: self.set_duration_of_exercise_in_list(_sv, index))
         self._exercise_durations.append(tk.Entry(self, width=4, textvariable=sv, font=tkFont.Font(family="Lucida Grande", size=15)))
         self._exercise_durations[-1].grid(row=row, column=1, columnspan=1, pady=4, sticky="W")
 
@@ -106,6 +118,15 @@ class Application(tk.Frame):
         self.set_current_time_label()
         self._exercise_dropdowns[-1].destroy()
         del self._exercise_dropdowns[-1]
+
+    def set_duration_of_exercise_in_list(self, sv, _index):
+        try:
+            print(self._train.exercises[_index].identifier)
+            self._train.exercises[_index].round_duration = float(sv.get())
+        except ValueError:
+            pass
+        self.update()
+        self.set_current_time_label()
 
     def pause_command(self):
         self._pause = True
