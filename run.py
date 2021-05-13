@@ -41,7 +41,13 @@ class Application(tk.Frame):
         self.pause = tk.Button(self, width=6, height=1, font=tkFont.Font(family="Lucida Grande", size=40))
         self.pause["text"] = "Pause"
         self.pause["command"] = self.pause_command
+        self.pause.config(width=6)
         self.pause.grid(row=2, column=1, columnspan=1, pady=4, padx=4, sticky="W")
+
+        self.reset = tk.Button(self, width=6, height=1, font=tkFont.Font(family="Lucida Grande", size=40))
+        self.reset["text"] = "Reset"
+        self.reset["command"] = self.reset_command
+        self.reset.grid(row=2, column=3, columnspan=1, pady=4, padx=4, sticky="W")
 
         self.exercise = tk.Label(self, width=24, height=1, font=tkFont.Font(family="Lucida Grande", size=40))
         self.set_exercise_label("Exercise")
@@ -67,7 +73,7 @@ class Application(tk.Frame):
         for i, exercise in enumerate(self._train.exercises):
             self.create_drop_down_exercise(i, exercise.identifier)
 
-        init_exercise_label = tk.Label(self, width=18, height=1, font=tkFont.Font(family="Lucida Grande", size=15))
+        init_exercise_label = tk.Label(self, width=9, height=1, font=tkFont.Font(family="Lucida Grande", size=15))
         init_exercise_label["text"] = "Init"
         init_exercise_label.config(anchor="e")
         init_exercise_label.grid(row=3, column=2, columnspan=1, pady=4, sticky="W")
@@ -77,7 +83,7 @@ class Application(tk.Frame):
         init_exercise_entry = tk.Entry(self, width=4, textvariable=sv, font=tkFont.Font(family="Lucida Grande", size=15))
         init_exercise_entry.grid(row=3, column=3, columnspan=1, pady=4, sticky="W")
 
-        pause_exercise_label = tk.Label(self, width=18, height=1, font=tkFont.Font(family="Lucida Grande", size=15))
+        pause_exercise_label = tk.Label(self, width=9, height=1, font=tkFont.Font(family="Lucida Grande", size=15))
         pause_exercise_label["text"] = "Pause"
         pause_exercise_label.config(anchor="e")
         pause_exercise_label.grid(row=4, column=2, columnspan=1, pady=4, sticky="W")
@@ -144,6 +150,14 @@ class Application(tk.Frame):
         if self._clicked_start:
             self.interval_cycle()
 
+    def reset_command(self):
+        self._clicked_start = False
+        self._set_session_choosable(state="normal")
+        self._train.reset_interval()
+        self._current_time = 0
+        self.set_current_time_label()
+        self.resume_command()
+
     def sessions_entry_command(self, sv):
 
         if not self._clicked_start:
@@ -155,14 +169,14 @@ class Application(tk.Frame):
             self.update()
             self.set_current_time_label()
 
-    def _disable_session_choosable(self):
-        self.sessions_entry.config(state='disabled')
+    def _set_session_choosable(self, state):
+        self.sessions_entry.config(state=state)
         for ex, dur in zip(self._exercise_dropdowns, self._exercise_durations):
-            ex.config(state='disabled')
-            dur.config(state='disabled')
+            ex.config(state=state)
+            dur.config(state=state)
 
-        self._new_exercise.config(state='disabled')
-        self._remove_exercise.config(state='disabled')
+        self._new_exercise.config(state=state)
+        self._remove_exercise.config(state=state)
 
     def choose_exercise(self, selection, index):
         self._train.set_exercise(selection, index)
@@ -201,7 +215,7 @@ class Application(tk.Frame):
     def start_interval_cycle(self):
         self._train.reset_interval()
         self._clicked_start = True
-        self._disable_session_choosable()
+        self._set_session_choosable(state="disabled")
         self.resume_command()
 
     def _is_pause(self, identifier):
@@ -218,6 +232,8 @@ class Application(tk.Frame):
         source_interval = self._train.interval.copy()
 
         for i, runner in enumerate(source_interval):
+            if not self._clicked_start:
+                break
             if self._is_pause_or_init(runner.exercise.identifier):
                 self.set_exercise_label(f"{runner.exercise.identifier}: {source_interval[i + 1].exercise.identifier} next")
             else:
@@ -237,7 +253,7 @@ class Application(tk.Frame):
             if self._pause:
                 break
 
-        if not self._pause:
+        if not self._pause and self._clicked_start:
             self.set_exercise_label("Done")
             self._current_time = 0
             sound_end()
