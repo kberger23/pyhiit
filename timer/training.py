@@ -62,6 +62,8 @@ class Training:
 
     AVAILABLE_EXERCISES = [WIDE_PULL_UPS, BACK_ROWS, WIDE_PUSH_UPS, PUSH_UPS]
 
+    DATE_FORMAT = "%d.%m.%Y %H:%M"
+
     def __init__(self, exercises: list, number_of_round: int = 3):
         self._number_of_round = number_of_round
         self._interval = None
@@ -149,7 +151,7 @@ class Training:
     def create_history_dict(self):
 
         history_dict = dict()
-        dt_string = datetime.now().strftime("%d.%m.%Y %H:%M")
+        dt_string = datetime.now().strftime()
         history_dict["date"] = dt_string
         history_dict["rounds"] = self.number_of_rounds
         history_dict["exercises"] = dict()
@@ -172,10 +174,10 @@ class Training:
         else:
             return []
 
-    def get_maximal_number_of_exercises_in_history(self):
+    def get_maximal_number_of_exercises_in_history(self, number_of_entries=8):
 
         largest_number_of_exercises = 0
-        for entry in self.read_history():
+        for entry in reversed(self.read_history()[-number_of_entries:]):
             largest_number_of_exercises = max(largest_number_of_exercises, len(entry["exercises"]))
         return largest_number_of_exercises
 
