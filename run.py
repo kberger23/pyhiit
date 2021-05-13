@@ -19,7 +19,7 @@ def sound_end():
 class Application(tk.Frame):
 
     def __init__(self, master=None):
-        super().__init__(master)
+        super().__init__(master, borderwidth=20)
 
         self._interval = []
         self._current_time = 0
@@ -34,26 +34,31 @@ class Application(tk.Frame):
 
     def create_widgets(self):
 
-        self.bottom_frame = tk.Frame(self)
-        self.bottom_frame.pack(side="bottom", fill="both", expand=True)
-
-        self.start = tk.Button(self, width=8, height=2, font=tkFont.Font(family="Lucida Grande", size=40))
+        self.start = tk.Button(self, width=6, height=1, font=tkFont.Font(family="Lucida Grande", size=40))
         self.start["text"] = "Start"
         self.start["command"] = self.start_interval_cycle
-        self.start.pack(in_=self.bottom_frame, side="left")
+        self.start.grid(row=2, column=0, columnspan=1, pady=4, padx=4)
 
-        self.pause = tk.Button(self, width=8, height=2, font=tkFont.Font(family="Lucida Grande", size=40))
+        self.pause = tk.Button(self, width=6, height=1, font=tkFont.Font(family="Lucida Grande", size=40))
         self.pause["text"] = "Pause"
         self.pause["command"] = self.pause_command
-        self.pause.pack(in_=self.bottom_frame, side="right")
+        self.pause.grid(row=2, column=1, columnspan=1, pady=4, padx=4)
 
-        self.exercise = tk.Label(self, width=24, height=1, font=tkFont.Font(family="Lucida Grande", size=40))
+        self.exercise = tk.Label(self, width=18, height=1, font=tkFont.Font(family="Lucida Grande", size=40))
         self.set_exercise_label("Exercise")
-        self.exercise.pack(side="top")
+        self.exercise.grid(row=0, column=0, columnspan=20,)
 
         self.current_timer = tk.Label(self, width=18, height=2, font=tkFont.Font(family="Lucida Grande", size=60))
         self.set_current_time_label()
-        self.current_timer.pack(side="top")
+        self.current_timer.grid(row=1, column=0, columnspan=20,)
+
+        self.sessions_label = tk.Label(self, width=18, height=1, font=tkFont.Font(family="Lucida Grande", size=15))
+        self.sessions_label["text"] = "Number of sessions"
+        self.sessions_label.grid(row=3, column=0, columnspan=1, pady=4)
+
+        self.sessions_entry = tk.Entry(self, width=18, font=tkFont.Font(family="Lucida Grande", size=15))
+        self.sessions_entry.grid(row=3, column=1, columnspan=1, pady=4)
+
 
     def init_interval(self):
 

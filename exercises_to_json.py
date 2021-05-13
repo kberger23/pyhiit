@@ -1,6 +1,7 @@
 import json
 
 from timer.const import EXERCISE_JSON
+from timer.training import Training
 
 
 def add_exercise_to_json(exercise, name, overwrite=False):
@@ -14,16 +15,13 @@ def add_exercise_to_json(exercise, name, overwrite=False):
         file.seek(0)
         json.dump(data, file, indent=4, sort_keys=True)
 
-Pause = dict()
-Pause["duration"] = 7
-#add_exercise_to_json(Pause, "Pause")
 
-Init = dict()
-Init["duration"] = 10
-#add_exercise_to_json(Init, "Init")
+#add_exercise_to_json(Pause, Training.Pause)
+#add_exercise_to_json(Init, Training.Init)
 
-#add_exercise_to_json({"duration": 30}, "Wide pull-ups")
-#add_exercise_to_json({"duration": 30}, "Back rows")
+#add_exercise_to_json({"duration": 30}, Training.WIDE_PULL_UPS)
+#add_exercise_to_json({"duration": 30}, Training.BACK_ROWS)
 
-#add_exercise_to_json({"duration": 30}, "Wide push-ups")
-#add_exercise_to_json({"duration": 30}, "Push-ups")
+
+#add_exercise_to_json({"duration": 30},Training.WIDE_PUSH_UPS)
+#add_exercise_to_json({"duration": 30}, Training.PUSH_UPS)
