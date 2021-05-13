@@ -80,7 +80,12 @@ class Training:
             raise TypeError("String are required")
 
         # Todo check for validity
-        self._exercises[index] = value
+        if index < len(self._exercises):
+            self._exercises[index] = value
+        elif index == len(self._exercises):
+            self._exercises.append(value)
+        else:
+            raise KeyError(f"{index} is not valid for array of size {len(self._exercises)}")
         if self._interval is not None:
             self.reset_interval()
 

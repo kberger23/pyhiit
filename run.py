@@ -5,7 +5,7 @@ import time
 from playsound import playsound
 from colour import Color
 
-from timer.training import Training, Runner
+from timer.training import Training
 
 
 def sound_begin():
@@ -62,16 +62,18 @@ class Application(tk.Frame):
         self.sessions_entry.grid(row=3, column=1, columnspan=1, pady=4, sticky="W")
 
         self._exercise_dropdowns = []
-
         for i, exercise in enumerate(self._train.exercises):
             self.create_drop_down_exercise(i, exercise)
+
+        self._new_exercise = tk.Button(self, text='+', command=lambda: self.create_drop_down_exercise(len(self._exercise_dropdowns), ""), bg="gainsboro", bd=1, padx=6, pady=2, font=tkFont.Font(family="Lucida Grande", size=15))
+        self._new_exercise.grid(row=3 + len(self._exercise_dropdowns) + 1, column=0, sticky="W")
 
     def create_drop_down_exercise(self, index, default):
 
         exercises_string_var = tk.StringVar(value=default)
         self._exercise_dropdowns.append(tk.OptionMenu(self, exercises_string_var, *self._train.AVAILABLE_EXERCISES, command=lambda x: self.choose_exercise(x, index)))
         self._exercise_dropdowns[-1].config(width=24, height=1, anchor="w", font=tkFont.Font(family="Lucida Grande", size=15))
-        self._exercise_dropdowns[-1].grid(row= 3 + len(self._exercise_dropdowns), column=0, columnspan=1, pady=4, sticky="W")
+        self._exercise_dropdowns[-1].grid(row=3 + len(self._exercise_dropdowns), column=0, columnspan=1, pady=4, sticky="W")
 
     def pause_command(self):
         self._pause = True
@@ -104,9 +106,9 @@ class Application(tk.Frame):
             ex.config(state='disabled')
 
     def choose_exercise(self, selection, index):
-        print(index)
         self._train.set_exercise(selection, index)
         self.update()
+        self.set_current_time_label()
 
     def set_exercise_label(self, exe: str):
         self.exercise["text"] = exe
@@ -154,7 +156,7 @@ class Application(tk.Frame):
 
     def interval_cycle(self):
 
-        source_interval = self._train.interval
+        source_interval = self._train.interval.copy()
 
         for i, runner in enumerate(source_interval):
             if self._is_pause_or_init(runner.exercise.identifier):
