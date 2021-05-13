@@ -73,7 +73,7 @@ class Application(tk.Frame):
         init_exercise_label.grid(row=3, column=2, columnspan=1, pady=4, sticky="W")
 
         sv = tk.StringVar(value=self._train.init.round_duration)
-        sv.trace("w", lambda name, index, mode, sv=sv: self.sessions_entry_command(sv))
+        sv.trace("w", lambda name, index, mode, sv=sv: self.set_duration_of_exercise(sv, self._train.init))
         init_exercise_entry = tk.Entry(self, width=4, textvariable=sv, font=tkFont.Font(family="Lucida Grande", size=15))
         init_exercise_entry.grid(row=3, column=3, columnspan=1, pady=4, sticky="W")
 
@@ -83,7 +83,7 @@ class Application(tk.Frame):
         pause_exercise_label.grid(row=4, column=2, columnspan=1, pady=4, sticky="W")
 
         sv = tk.StringVar(value=self._train.pause.round_duration)
-        sv.trace("w", lambda name, index, mode, sv=sv: self.sessions_entry_command(sv))
+        sv.trace("w", lambda name, index, mode, sv=sv: self.set_duration_of_exercise(sv, self._train.pause))
         pause_exercise_entry = tk.Entry(self, width=4, textvariable=sv, font=tkFont.Font(family="Lucida Grande", size=15))
         pause_exercise_entry.grid(row=4, column=3, columnspan=1, pady=4, sticky="W")
 
@@ -120,9 +120,11 @@ class Application(tk.Frame):
         del self._exercise_dropdowns[-1]
 
     def set_duration_of_exercise_in_list(self, sv, _index):
+        self.set_duration_of_exercise(sv, self._train.exercises[_index])
+
+    def set_duration_of_exercise(self, sv, exercise):
         try:
-            print(self._train.exercises[_index].identifier)
-            self._train.exercises[_index].round_duration = float(sv.get())
+            exercise.round_duration = float(sv.get())
         except ValueError:
             pass
         self.update()

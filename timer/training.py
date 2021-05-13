@@ -69,6 +69,8 @@ class Training:
             self._data = json.load(file)
 
         self._exercises = [Exercise(ex, self._data[ex]) for ex in exercises]
+        self._init = Exercise(self.INIT, self._data[self.INIT])
+        self._pause = Exercise(self.PAUSE, self._data[self.PAUSE])
 
     @property
     def number_of_rounds(self):
@@ -137,11 +139,11 @@ class Training:
 
     @property
     def init(self):
-        return Exercise(self.INIT, self._data[self.INIT])
+        return self._init
 
     @property
     def pause(self):
-        return Exercise(self.PAUSE, self._data[self.PAUSE])
+        return self._pause
 
     def __getitem__(self, item):
         return self._interval[item]
