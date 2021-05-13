@@ -89,6 +89,11 @@ class Training:
         if self._interval is not None:
             self.reset_interval()
 
+    def remove_last_exercise(self):
+        del self._exercises[-1]
+        if self._interval is not None:
+            self.reset_interval()
+
     @property
     def _exercise_loop(self):
         return [Exercise(ex, self._data[ex]) for _ in range(self._number_of_round) for ex in self._exercises]

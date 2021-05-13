@@ -68,6 +68,7 @@ class Application(tk.Frame):
 
     def create_drop_down_exercise(self, index, default):
 
+        self.choose_exercise(default, index)
         exercises_string_var = tk.StringVar(value=default)
         self._exercise_dropdowns.append(tk.OptionMenu(self, exercises_string_var, *self._train.AVAILABLE_EXERCISES, command=lambda x: self.choose_exercise(x, index)))
         self._exercise_dropdowns[-1].config(width=24, height=1, anchor="w", font=tkFont.Font(family="Lucida Grande", size=15))
@@ -75,8 +76,21 @@ class Application(tk.Frame):
 
         if self._new_exercise:
             self._new_exercise.destroy()
-        self._new_exercise = tk.Button(self, text='+', command=lambda: self.create_drop_down_exercise(len(self._exercise_dropdowns), ""), bg="gainsboro", bd=1, padx=6, pady=2, font=tkFont.Font(family="Lucida Grande", size=15))
+            self._remove_exercise.destroy()
+        self._new_exercise = tk.Button(self, text='+', command=lambda: self.create_drop_down_exercise(len(self._exercise_dropdowns), self._train.AVAILABLE_EXERCISES[-1]), bg="gainsboro", bd=1, padx=6, pady=2, font=tkFont.Font(family="Lucida Grande", size=15))
+        self._new_exercise.config(width=2)
         self._new_exercise.grid(row=3 + len(self._exercise_dropdowns) + 1, column=0, sticky="W")
+
+        self._remove_exercise = tk.Button(self, text='-', command=self.remove_drop_down_exercise, bg="gainsboro", bd=1, padx=6, pady=2, font=tkFont.Font(family="Lucida Grande", size=15))
+        self._remove_exercise.config(width=2)
+        self._remove_exercise.grid(row=3 + len(self._exercise_dropdowns) + 1, column=0, sticky="W", padx=60)
+
+    def remove_drop_down_exercise(self):
+        self._train.remove_last_exercise()
+        self.update()
+        self.set_current_time_label()
+        self._exercise_dropdowns[-1].destroy()
+        del self._exercise_dropdowns[-1]
 
     def pause_command(self):
         self._pause = True
@@ -107,6 +121,9 @@ class Application(tk.Frame):
         self.sessions_entry.config(state='disabled')
         for ex in self._exercise_dropdowns:
             ex.config(state='disabled')
+
+        self._new_exercise.config(state='disabled')
+        self._remove_exercise.config(state='disabled')
 
     def choose_exercise(self, selection, index):
         self._train.set_exercise(selection, index)
