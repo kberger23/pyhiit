@@ -125,6 +125,9 @@ class Application(tk.Frame):
         self._exercise_dropdowns[-1].destroy()
         del self._exercise_dropdowns[-1]
 
+        self._exercise_durations[-1].destroy()
+        del self._exercise_durations[-1]
+
     def set_duration_of_exercise_in_list(self, sv, _index):
         self.set_duration_of_exercise(sv, self._train.exercises[_index])
 
