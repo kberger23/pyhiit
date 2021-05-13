@@ -52,12 +52,13 @@ class Training:
     AVAILABLE_EXERCISES = [WIDE_PULL_UPS, BACK_ROWS, WIDE_PUSH_UPS, PUSH_UPS]
 
     def __init__(self, exercises: list, number_of_round: int = 3):
-        self._exercises = exercises
         self._number_of_round = number_of_round
         self._interval = None
 
         with open(EXERCISE_JSON, "r+") as file:
             self._data = json.load(file)
+
+        self._exercises = [Exercise(ex, self._data[ex]) for ex in exercises]
 
     @property
     def number_of_rounds(self):
@@ -79,11 +80,12 @@ class Training:
         if not isinstance(value, str):
             raise TypeError("String are required")
 
+        exercise = Exercise(value, self._data[value])
         # Todo check for validity
         if index < len(self._exercises):
-            self._exercises[index] = value
+            self._exercises[index] = exercise
         elif index == len(self._exercises):
-            self._exercises.append(value)
+            self._exercises.append(exercise)
         else:
             raise KeyError(f"{index} is not valid for array of size {len(self._exercises)}")
         if self._interval is not None:
@@ -96,7 +98,7 @@ class Training:
 
     @property
     def _exercise_loop(self):
-        return [Exercise(ex, self._data[ex]) for _ in range(self._number_of_round) for ex in self._exercises]
+        return [ex for _ in range(self._number_of_round) for ex in self._exercises]
 
     @property
     def number_of_exercise_rounds(self):

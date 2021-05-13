@@ -58,13 +58,14 @@ class Application(tk.Frame):
 
         sv = tk.StringVar(value=self._train.number_of_rounds)
         sv.trace("w", lambda name, index, mode, sv=sv: self.sessions_entry_command(sv))
-        self.sessions_entry = tk.Entry(self, width=18, textvariable=sv, font=tkFont.Font(family="Lucida Grande", size=15))
+        self.sessions_entry = tk.Entry(self, width=4, textvariable=sv, font=tkFont.Font(family="Lucida Grande", size=15))
         self.sessions_entry.grid(row=3, column=1, columnspan=1, pady=4, sticky="W")
 
         self._exercise_dropdowns = []
+        self._exercise_durations = []
         self._new_exercise = None
         for i, exercise in enumerate(self._train.exercises):
-            self.create_drop_down_exercise(i, exercise)
+            self.create_drop_down_exercise(i, exercise.identifier)
 
     def create_drop_down_exercise(self, index, default):
 
@@ -72,7 +73,16 @@ class Application(tk.Frame):
         exercises_string_var = tk.StringVar(value=default)
         self._exercise_dropdowns.append(tk.OptionMenu(self, exercises_string_var, *self._train.AVAILABLE_EXERCISES, command=lambda x: self.choose_exercise(x, index)))
         self._exercise_dropdowns[-1].config(width=24, height=1, anchor="w", font=tkFont.Font(family="Lucida Grande", size=15))
-        self._exercise_dropdowns[-1].grid(row=3 + len(self._exercise_dropdowns), column=0, columnspan=1, pady=4, sticky="W")
+        row = 3 + len(self._exercise_dropdowns)
+        self._exercise_dropdowns[-1].grid(row=row, column=0, columnspan=1, pady=4, sticky="W")
+
+        def callback(sv):
+            self._train.exercises[len(self._exercise_dropdowns) - 1].round_duration = sv.get()
+
+        sv = tk.StringVar(value=self._train.exercises[len(self._exercise_dropdowns) - 1].round_duration)
+        sv.trace("w", lambda name, index, mode, sv=sv: callback(sv) )
+        self._exercise_durations.append(tk.Entry(self, width=4, textvariable=sv, font=tkFont.Font(family="Lucida Grande", size=15)))
+        self._exercise_durations[-1].grid(row=row, column=1, columnspan=1, pady=4, sticky="W")
 
         if self._new_exercise:
             self._new_exercise.destroy()
