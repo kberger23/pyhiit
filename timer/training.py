@@ -40,23 +40,36 @@ class Training:
     def __init__(self, exercises: list, number_of_round: int):
         self._exercises = exercises
         self._number_of_round = number_of_round
+        self._interval = None
 
         with open(EXERCISE_JSON, "r+") as file:
             self._data = json.load(file)
 
     @property
-    def interval(self):
+    def _exercise_loop(self):
         return [Exercise(ex, self._data[ex]) for _ in range(self._number_of_round) for ex in self._exercises]
 
-    def create_interval(self):
+    @property
+    def number_of_exercise_rounds(self):
+        return len(self._exercise_loop)
 
-        _interval = list()
-        _interval.append(Runner(-1, self.init.round_duration, self.init))
-        for j, exer in enumerate(self.interval):
+    def _create_interval(self):
+
+        self._interval = list()
+        self._interval.append(Runner(-1, self.init.round_duration, self.init))
+        for j, exer in enumerate(self._exercise_loop):
             if not j == 0:
-                _interval.append(Runner(j, self.pause.round_duration, self.pause))
-            _interval.append(Runner(j, exer.round_duration, exer))
-        return _interval
+                self._interval.append(Runner(j, self.pause.round_duration, self.pause))
+            self._interval.append(Runner(j, exer.round_duration, exer))
+
+    @property
+    def interval(self):
+        if self._interval is None:
+            self._create_interval()
+        return self._interval
+
+    def reset_interval(self):
+        self._create_interval()
 
     @property
     def init(self):

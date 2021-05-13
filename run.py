@@ -21,7 +21,6 @@ class Application(tk.Frame):
     def __init__(self, master=None):
         super().__init__(master, borderwidth=20)
 
-        self._interval = []
         self._current_time = 0
         self._current_session = -1
         self._pause = False
@@ -56,15 +55,15 @@ class Application(tk.Frame):
         self.sessions_label["text"] = "Number of sessions"
         self.sessions_label.grid(row=3, column=0, columnspan=1, pady=4)
 
-        self.sessions_entry = tk.Entry(self, width=18, font=tkFont.Font(family="Lucida Grande", size=15))
+        sv = tk.StringVar()
+        sv.trace("w", lambda name, index, mode, sv=sv: self.sessions_entry_command(sv))
+        self.sessions_entry = tk.Entry(self, width=18, textvariable=sv, font=tkFont.Font(family="Lucida Grande", size=15))
         self.sessions_entry.grid(row=3, column=1, columnspan=1, pady=4)
-
 
     def init_interval(self):
 
         self._pause = False
         self._train = Training([Training.PUSH_UPS, Training.WIDE_PUSH_UPS], 3)
-        self._interval = self._train.create_interval()
 
     def pause_command(self):
         self._pause = True
@@ -79,12 +78,16 @@ class Application(tk.Frame):
         self.update()
         self.interval_cycle()
 
+    def sessions_entry_command(self, sv):
+        print("session entry changed")
+        print(sv.get())
+
     def set_exercise_label(self, exe: str):
         self.exercise["text"] = exe
         self.update()
 
     def set_current_time_label(self, color="white"):
-        self.current_timer["text"] = f"[{self._current_session + 1}/{len(self._train.interval)}]{max(self._current_time,0):5.2f}s"
+        self.current_timer["text"] = f"[{self._current_session + 1}/{self._train.number_of_exercise_rounds}]{max(self._current_time, 0):5.2f}s"
         self.current_timer.config(bg=color)
 
     def adjust_time(self, phase: str, remaining_duration: float, total_time: float):
@@ -123,7 +126,7 @@ class Application(tk.Frame):
 
     def interval_cycle(self):
 
-        source_interval = self._interval.copy()
+        source_interval = self._train.interval
 
         for i, runner in enumerate(source_interval):
             if self._is_pause_or_init(runner.exercise.identifier):
@@ -139,9 +142,9 @@ class Application(tk.Frame):
                 else:
                     sound_end()
                 time.sleep(0.2)
-                del self._interval[0]
+                del self._train.interval[0]
             else:
-                self._interval[0] = Runner(runner.session, self._current_time, runner.exercise)
+                self._train.interval[0] = Runner(runner.session, self._current_time, runner.exercise)
             if self._pause:
                 break
 
