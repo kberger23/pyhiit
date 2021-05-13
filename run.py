@@ -33,38 +33,45 @@ class Application(tk.Frame):
 
     def create_widgets(self):
 
-        self.start = tk.Button(self, width=6, height=1, font=tkFont.Font(family="Lucida Grande", size=40))
+        self.general = tk.Frame(self)
+        self.general.grid(row=0, sticky="ew")
+
+        self.history = tk.Frame(self)
+        self.history.configure(width=50, height=80, padx=4, pady=2, background='white')
+        self.history.grid(row=1, sticky="ew", pady=10)
+
+        self.start = tk.Button(self.general, width=6, height=1, font=tkFont.Font(family="Lucida Grande", size=40))
         self.start["text"] = "Start"
         self.start["command"] = self.start_interval_cycle
         self.start.grid(row=2, column=0, columnspan=1, pady=4, padx=4, sticky="W")
 
-        self.pause = tk.Button(self, width=6, height=1, font=tkFont.Font(family="Lucida Grande", size=40))
+        self.pause = tk.Button(self.general, width=6, height=1, font=tkFont.Font(family="Lucida Grande", size=40))
         self.pause["text"] = "Pause"
         self.pause["command"] = self.pause_command
         self.pause.config(width=6)
         self.pause.grid(row=2, column=1, columnspan=1, pady=4, padx=4, sticky="W")
 
-        self.reset = tk.Button(self, width=6, height=1, font=tkFont.Font(family="Lucida Grande", size=40))
+        self.reset = tk.Button(self.general, width=6, height=1, font=tkFont.Font(family="Lucida Grande", size=40))
         self.reset["text"] = "Reset"
         self.reset["command"] = self.reset_command
         self.reset.grid(row=2, column=3, columnspan=1, pady=4, padx=4, sticky="W")
 
-        self.exercise = tk.Label(self, width=24, height=1, font=tkFont.Font(family="Lucida Grande", size=40))
+        self.exercise = tk.Label(self.general, width=24, height=1, font=tkFont.Font(family="Lucida Grande", size=40))
         self.set_exercise_label("Exercise")
         self.exercise.grid(row=0, column=0, columnspan=20,)
 
-        self.current_timer = tk.Label(self, width=18, height=2, font=tkFont.Font(family="Lucida Grande", size=60))
+        self.current_timer = tk.Label(self.general, width=18, height=2, font=tkFont.Font(family="Lucida Grande", size=60))
         self.set_current_time_label()
         self.current_timer.grid(row=1, column=0, columnspan=20)
 
-        self.sessions_label = tk.Label(self, width=18, height=1, font=tkFont.Font(family="Lucida Grande", size=15))
+        self.sessions_label = tk.Label(self.general, width=18, height=1, font=tkFont.Font(family="Lucida Grande", size=15))
         self.sessions_label["text"] = "Number of sessions"
         self.sessions_label.config(anchor="w")
         self.sessions_label.grid(row=3, column=0, columnspan=1, pady=4, sticky="W")
 
         sv = tk.StringVar(value=self._train.number_of_rounds)
         sv.trace("w", lambda name, index, mode, sv=sv: self.sessions_entry_command(sv))
-        self.sessions_entry = tk.Entry(self, width=4, textvariable=sv, font=tkFont.Font(family="Lucida Grande", size=15))
+        self.sessions_entry = tk.Entry(self.general, width=4, textvariable=sv, font=tkFont.Font(family="Lucida Grande", size=15))
         self.sessions_entry.grid(row=3, column=1, columnspan=1, pady=4, sticky="W")
 
         self._exercise_dropdowns = []
@@ -73,48 +80,55 @@ class Application(tk.Frame):
         for i, exercise in enumerate(self._train.exercises):
             self.create_drop_down_exercise(i, exercise.identifier)
 
-        init_exercise_label = tk.Label(self, width=9, height=1, font=tkFont.Font(family="Lucida Grande", size=15))
+        init_exercise_label = tk.Label(self.general, width=9, height=1, font=tkFont.Font(family="Lucida Grande", size=15))
         init_exercise_label["text"] = "Init"
         init_exercise_label.config(anchor="e")
         init_exercise_label.grid(row=3, column=2, columnspan=1, pady=4, sticky="W")
 
         sv = tk.StringVar(value=self._train.init.round_duration)
         sv.trace("w", lambda name, index, mode, sv=sv: self.set_duration_of_exercise(sv, self._train.init))
-        self.init_exercise_entry = tk.Entry(self, width=4, textvariable=sv, font=tkFont.Font(family="Lucida Grande", size=15))
+        self.init_exercise_entry = tk.Entry(self.general, width=4, textvariable=sv, font=tkFont.Font(family="Lucida Grande", size=15))
         self.init_exercise_entry.grid(row=3, column=3, columnspan=1, pady=4, sticky="W")
 
-        pause_exercise_label = tk.Label(self, width=9, height=1, font=tkFont.Font(family="Lucida Grande", size=15))
+        pause_exercise_label = tk.Label(self.general, width=9, height=1, font=tkFont.Font(family="Lucida Grande", size=15))
         pause_exercise_label["text"] = "Pause"
         pause_exercise_label.config(anchor="e")
         pause_exercise_label.grid(row=4, column=2, columnspan=1, pady=4, sticky="W")
 
         sv = tk.StringVar(value=self._train.pause.round_duration)
         sv.trace("w", lambda name, index, mode, sv=sv: self.set_duration_of_exercise(sv, self._train.pause))
-        self.pause_exercise_entry = tk.Entry(self, width=4, textvariable=sv, font=tkFont.Font(family="Lucida Grande", size=15))
+        self.pause_exercise_entry = tk.Entry(self.general, width=4, textvariable=sv, font=tkFont.Font(family="Lucida Grande", size=15))
         self.pause_exercise_entry.grid(row=4, column=3, columnspan=1, pady=4, sticky="W")
+
+
+        pause_exercise_label = tk.Label(self.history, width=9, height=5, font=tkFont.Font(family="Lucida Grande", size=15))
+        pause_exercise_label["text"] = "test"
+        pause_exercise_label.config(anchor="w")
+        pause_exercise_label.grid(row=0, column=0, columnspan=1, pady=4, sticky="W")
+
 
     def create_drop_down_exercise(self, index, default):
 
         self.choose_exercise(default, index)
         exercises_string_var = tk.StringVar(value=default)
-        self._exercise_dropdowns.append(tk.OptionMenu(self, exercises_string_var, *self._train.AVAILABLE_EXERCISES, command=lambda x: self.choose_exercise(x, index)))
+        self._exercise_dropdowns.append(tk.OptionMenu(self.general, exercises_string_var, *self._train.AVAILABLE_EXERCISES, command=lambda x: self.choose_exercise(x, index)))
         self._exercise_dropdowns[-1].config(width=24, height=1, anchor="w", font=tkFont.Font(family="Lucida Grande", size=15))
         row = 3 + len(self._exercise_dropdowns)
         self._exercise_dropdowns[-1].grid(row=row, column=0, columnspan=1, pady=4, sticky="W")
 
         sv = tk.StringVar(value=self._train.exercises[len(self._exercise_dropdowns) - 1].round_duration)
         sv.trace("w", lambda _name, _index, _mode, _sv=sv: self.set_duration_of_exercise_in_list(_sv, index))
-        self._exercise_durations.append(tk.Entry(self, width=4, textvariable=sv, font=tkFont.Font(family="Lucida Grande", size=15)))
+        self._exercise_durations.append(tk.Entry(self.general, width=4, textvariable=sv, font=tkFont.Font(family="Lucida Grande", size=15)))
         self._exercise_durations[-1].grid(row=row, column=1, columnspan=1, pady=4, sticky="W")
 
         if self._new_exercise:
             self._new_exercise.destroy()
             self._remove_exercise.destroy()
-        self._new_exercise = tk.Button(self, text='+', command=lambda: self.create_drop_down_exercise(len(self._exercise_dropdowns), self._train.AVAILABLE_EXERCISES[-1]), bg="gainsboro", bd=1, padx=6, pady=2, font=tkFont.Font(family="Lucida Grande", size=15))
+        self._new_exercise = tk.Button(self.general, text='+', command=lambda: self.create_drop_down_exercise(len(self._exercise_dropdowns), self._train.AVAILABLE_EXERCISES[-1]), bg="gainsboro", bd=1, padx=6, pady=2, font=tkFont.Font(family="Lucida Grande", size=15))
         self._new_exercise.config(width=2)
         self._new_exercise.grid(row=3 + len(self._exercise_dropdowns) + 1, column=0, sticky="W")
 
-        self._remove_exercise = tk.Button(self, text='-', command=self.remove_drop_down_exercise, bg="gainsboro", bd=1, padx=6, pady=2, font=tkFont.Font(family="Lucida Grande", size=15))
+        self._remove_exercise = tk.Button(self.general, text='-', command=self.remove_drop_down_exercise, bg="gainsboro", bd=1, padx=6, pady=2, font=tkFont.Font(family="Lucida Grande", size=15))
         self._remove_exercise.config(width=2)
         self._remove_exercise.grid(row=3 + len(self._exercise_dropdowns) + 1, column=0, sticky="W", padx=60)
 

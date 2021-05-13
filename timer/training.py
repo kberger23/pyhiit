@@ -1,6 +1,7 @@
 import json
+from datetime import datetime
 
-from timer.const import EXERCISE_JSON, DEBUG, DEBUG_INTERVAL_TIME
+from timer.const import EXERCISE_JSON, DEBUG, DEBUG_INTERVAL_TIME, EXERCISE_HISTORY_JSON
 
 
 class Exercise:
@@ -145,5 +146,31 @@ class Training:
     def pause(self):
         return self._pause
 
+    def create_history_dict(self):
+
+        history_dict = dict()
+        dt_string = datetime.now().strftime("%d.%m.%Y %H:%M")
+        history_dict["date"] = dt_string
+        history_dict["rounds"] = self.number_of_rounds
+        history_dict["exercises"] = dict()
+        for ex in self._exercises:
+            history_dict["exercises"][ex.identifier] = ex.round_duration
+        return history_dict
+
+    def save(self):
+        if not EXERCISE_HISTORY_JSON.is_file():
+            with open(EXERCISE_HISTORY_JSON, "w") as file:
+                histories = list()
+                histories.append(self.create_history_dict())
+                json.dump(histories, file, indent=4)
+        else:
+            with open(EXERCISE_HISTORY_JSON, "r") as file:
+                histories = json.load(file)
+
+            histories.append(self.create_history_dict())
+            with open(EXERCISE_HISTORY_JSON, "w") as file:
+                json.dump(histories, file, indent=4)
+
     def __getitem__(self, item):
         return self._interval[item]
+
