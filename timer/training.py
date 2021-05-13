@@ -49,6 +49,8 @@ class Training:
     WIDE_PUSH_UPS = "Wide push-ups"
     PUSH_UPS = "Push-ups"
 
+    AVAILABLE_EXERCISES = [WIDE_PULL_UPS, BACK_ROWS, WIDE_PUSH_UPS, PUSH_UPS]
+
     def __init__(self, exercises: list, number_of_round: int = 3):
         self._exercises = exercises
         self._number_of_round = number_of_round
@@ -66,6 +68,19 @@ class Training:
         if not isinstance(value, int):
             raise TypeError("Integer are required")
         self._number_of_round = value
+        if self._interval is not None:
+            self.reset_interval()
+
+    @property
+    def exercises(self):
+        return self._exercises
+
+    def set_exercise(self, value, index):
+        if not isinstance(value, str):
+            raise TypeError("String are required")
+
+        # Todo check for validity
+        self._exercises[index] = value
         if self._interval is not None:
             self.reset_interval()
 

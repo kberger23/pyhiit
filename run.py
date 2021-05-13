@@ -36,29 +36,42 @@ class Application(tk.Frame):
         self.start = tk.Button(self, width=6, height=1, font=tkFont.Font(family="Lucida Grande", size=40))
         self.start["text"] = "Start"
         self.start["command"] = self.start_interval_cycle
-        self.start.grid(row=2, column=0, columnspan=1, pady=4, padx=4)
+        self.start.grid(row=2, column=0, columnspan=1, pady=4, padx=4, sticky="W")
 
         self.pause = tk.Button(self, width=6, height=1, font=tkFont.Font(family="Lucida Grande", size=40))
         self.pause["text"] = "Pause"
         self.pause["command"] = self.pause_command
-        self.pause.grid(row=2, column=1, columnspan=1, pady=4, padx=4)
+        self.pause.grid(row=2, column=1, columnspan=1, pady=4, padx=4, sticky="W")
 
-        self.exercise = tk.Label(self, width=18, height=1, font=tkFont.Font(family="Lucida Grande", size=40))
+        self.exercise = tk.Label(self, width=24, height=1, font=tkFont.Font(family="Lucida Grande", size=40))
         self.set_exercise_label("Exercise")
         self.exercise.grid(row=0, column=0, columnspan=20,)
 
         self.current_timer = tk.Label(self, width=18, height=2, font=tkFont.Font(family="Lucida Grande", size=60))
         self.set_current_time_label()
-        self.current_timer.grid(row=1, column=0, columnspan=20,)
+        self.current_timer.grid(row=1, column=0, columnspan=20)
 
         self.sessions_label = tk.Label(self, width=18, height=1, font=tkFont.Font(family="Lucida Grande", size=15))
         self.sessions_label["text"] = "Number of sessions"
-        self.sessions_label.grid(row=3, column=0, columnspan=1, pady=4)
+        self.sessions_label.config(anchor="w")
+        self.sessions_label.grid(row=3, column=0, columnspan=1, pady=4, sticky="W")
 
         sv = tk.StringVar(value=self._train.number_of_rounds)
         sv.trace("w", lambda name, index, mode, sv=sv: self.sessions_entry_command(sv))
         self.sessions_entry = tk.Entry(self, width=18, textvariable=sv, font=tkFont.Font(family="Lucida Grande", size=15))
-        self.sessions_entry.grid(row=3, column=1, columnspan=1, pady=4)
+        self.sessions_entry.grid(row=3, column=1, columnspan=1, pady=4, sticky="W")
+
+        self._exercise_dropdowns = []
+
+        for i, exercise in enumerate(self._train.exercises):
+            self.create_drop_down_exercise(i, exercise)
+
+    def create_drop_down_exercise(self, index, default):
+
+        exercises_string_var = tk.StringVar(value=default)
+        self._exercise_dropdowns.append(tk.OptionMenu(self, exercises_string_var, *self._train.AVAILABLE_EXERCISES, command=lambda x: self.choose_exercise(x, index)))
+        self._exercise_dropdowns[-1].config(width=24, height=1, anchor="w", font=tkFont.Font(family="Lucida Grande", size=15))
+        self._exercise_dropdowns[-1].grid(row= 3 + len(self._exercise_dropdowns), column=0, columnspan=1, pady=4, sticky="W")
 
     def pause_command(self):
         self._pause = True
@@ -71,7 +84,8 @@ class Application(tk.Frame):
         self.pause["text"] = "Pause"
         self.pause["command"] = self.pause_command
         self.update()
-        self.interval_cycle()
+        if self._clicked_start:
+            self.interval_cycle()
 
     def sessions_entry_command(self, sv):
 
@@ -86,6 +100,11 @@ class Application(tk.Frame):
 
     def _disable_session_entry(self):
         self.sessions_entry.config(state='disabled')
+
+    def choose_exercise(self, selection, index):
+        print(index)
+        self._train.set_exercise(selection, index)
+        self.update()
 
     def set_exercise_label(self, exe: str):
         self.exercise["text"] = exe
