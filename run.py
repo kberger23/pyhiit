@@ -24,11 +24,10 @@ class Application(tk.Frame):
         self._current_time = 0
         self._current_session = -1
         self._pause = False
-        self._train = None
+        self._train = Training([Training.PUSH_UPS, Training.WIDE_PUSH_UPS])
 
         self.master = master
         self.pack()
-        self.init_interval()
         self.create_widgets()
 
     def create_widgets(self):
@@ -55,15 +54,11 @@ class Application(tk.Frame):
         self.sessions_label["text"] = "Number of sessions"
         self.sessions_label.grid(row=3, column=0, columnspan=1, pady=4)
 
-        sv = tk.StringVar()
+        sv = tk.StringVar(value=self._train.number_of_rounds)
         sv.trace("w", lambda name, index, mode, sv=sv: self.sessions_entry_command(sv))
         self.sessions_entry = tk.Entry(self, width=18, textvariable=sv, font=tkFont.Font(family="Lucida Grande", size=15))
         self.sessions_entry.grid(row=3, column=1, columnspan=1, pady=4)
 
-    def init_interval(self):
-
-        self._pause = False
-        self._train = Training([Training.PUSH_UPS, Training.WIDE_PUSH_UPS], 3)
 
     def pause_command(self):
         self._pause = True
@@ -79,8 +74,14 @@ class Application(tk.Frame):
         self.interval_cycle()
 
     def sessions_entry_command(self, sv):
-        print("session entry changed")
-        print(sv.get())
+
+        number_of_rounds = sv.get()
+        try:
+            self._train.number_of_rounds = int(number_of_rounds)
+        except ValueError:
+            pass
+        self.update()
+        self.set_current_time_label()
 
     def set_exercise_label(self, exe: str):
         self.exercise["text"] = exe
@@ -112,8 +113,8 @@ class Application(tk.Frame):
             i += 1
 
     def start_interval_cycle(self):
-        self.init_interval()
-        self.interval_cycle()
+        self._train.reset_interval()
+        self.resume_command()
 
     def _is_pause(self, identifier):
         return identifier == self._train.pause.identifier

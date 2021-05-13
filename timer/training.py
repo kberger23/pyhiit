@@ -49,13 +49,25 @@ class Training:
     WIDE_PUSH_UPS = "Wide push-ups"
     PUSH_UPS = "Push-ups"
 
-    def __init__(self, exercises: list, number_of_round: int):
+    def __init__(self, exercises: list, number_of_round: int = 3):
         self._exercises = exercises
         self._number_of_round = number_of_round
         self._interval = None
 
         with open(EXERCISE_JSON, "r+") as file:
             self._data = json.load(file)
+
+    @property
+    def number_of_rounds(self):
+        return self._number_of_round
+
+    @number_of_rounds.setter
+    def number_of_rounds(self, value):
+        if not isinstance(value, int):
+            raise TypeError("Integer are required")
+        self._number_of_round = value
+        if self._interval is not None:
+            self.reset_interval()
 
     @property
     def _exercise_loop(self):
