@@ -80,8 +80,8 @@ class Application(tk.Frame):
 
         sv = tk.StringVar(value=self._train.init.round_duration)
         sv.trace("w", lambda name, index, mode, sv=sv: self.set_duration_of_exercise(sv, self._train.init))
-        init_exercise_entry = tk.Entry(self, width=4, textvariable=sv, font=tkFont.Font(family="Lucida Grande", size=15))
-        init_exercise_entry.grid(row=3, column=3, columnspan=1, pady=4, sticky="W")
+        self.init_exercise_entry = tk.Entry(self, width=4, textvariable=sv, font=tkFont.Font(family="Lucida Grande", size=15))
+        self.init_exercise_entry.grid(row=3, column=3, columnspan=1, pady=4, sticky="W")
 
         pause_exercise_label = tk.Label(self, width=9, height=1, font=tkFont.Font(family="Lucida Grande", size=15))
         pause_exercise_label["text"] = "Pause"
@@ -90,8 +90,8 @@ class Application(tk.Frame):
 
         sv = tk.StringVar(value=self._train.pause.round_duration)
         sv.trace("w", lambda name, index, mode, sv=sv: self.set_duration_of_exercise(sv, self._train.pause))
-        pause_exercise_entry = tk.Entry(self, width=4, textvariable=sv, font=tkFont.Font(family="Lucida Grande", size=15))
-        pause_exercise_entry.grid(row=4, column=3, columnspan=1, pady=4, sticky="W")
+        self.pause_exercise_entry = tk.Entry(self, width=4, textvariable=sv, font=tkFont.Font(family="Lucida Grande", size=15))
+        self.pause_exercise_entry.grid(row=4, column=3, columnspan=1, pady=4, sticky="W")
 
     def create_drop_down_exercise(self, index, default):
 
@@ -177,6 +177,9 @@ class Application(tk.Frame):
 
         self._new_exercise.config(state=state)
         self._remove_exercise.config(state=state)
+
+        self.init_exercise_entry.config(state=state)
+        self.pause_exercise_entry.config(state=state)
 
     def choose_exercise(self, selection, index):
         self._train.set_exercise(selection, index)
