@@ -29,6 +29,7 @@ class Exercise:
         print(f"New duration is {self._dict['duration']}")
         self._updated = True
 
+
 class Runner:
 
     def __init__(self, session_index: int, remaining_duration: float, exercise: Exercise):
@@ -148,10 +149,14 @@ class Training:
     def pause(self):
         return self._pause
 
+    @property
+    def history(self):
+        return TrainingHistory()
+
     def create_history_dict(self):
 
         history_dict = dict()
-        dt_string = datetime.now().strftime()
+        dt_string = datetime.now().strftime(self.DATE_FORMAT)
         history_dict["date"] = dt_string
         history_dict["rounds"] = self.number_of_rounds
         history_dict["exercises"] = dict()
@@ -159,14 +164,20 @@ class Training:
             history_dict["exercises"][ex.identifier] = ex.round_duration
         return history_dict
 
-    def save(self):
-        histories = self.read_history()
-        histories.append(self.create_history_dict())
-        with open(EXERCISE_HISTORY_JSON, "w") as file:
-            json.dump(histories, file, indent=4)
+    def save_training(self):
+        self.history.save(self.create_history_dict())
+
+    def __getitem__(self, item):
+        return self._interval[item]
+
+
+class TrainingHistory:
+
+    def __init__(self):
+        pass
 
     @staticmethod
-    def read_history():
+    def read():
         if EXERCISE_HISTORY_JSON.is_file():
             with open(EXERCISE_HISTORY_JSON, "r") as file:
                 histories = json.load(file)
@@ -174,13 +185,19 @@ class Training:
         else:
             return []
 
-    def get_maximal_number_of_exercises_in_history(self, number_of_entries=8):
+    @property
+    def as_list(self):
+        return self.read()
+
+    def save(self, history_dict):
+        histories = self.as_list
+        histories.append(history_dict)
+        with open(EXERCISE_HISTORY_JSON, "w") as file:
+            json.dump(histories, file, indent=4)
+
+    def maximal_number_of_exercises(self, number_of_entries=8):
 
         largest_number_of_exercises = 0
-        for entry in reversed(self.read_history()[-number_of_entries:]):
+        for entry in reversed(self.as_list[-number_of_entries:]):
             largest_number_of_exercises = max(largest_number_of_exercises, len(entry["exercises"]))
         return largest_number_of_exercises
-
-    def __getitem__(self, item):
-        return self._interval[item]
-

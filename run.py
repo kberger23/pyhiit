@@ -39,7 +39,7 @@ class Application(tk.Frame):
         self.general.grid(row=0, sticky="ew")
 
         self.history = tk.Frame(self)
-        self.history.configure(width=50, height=15.3 * (2 + self._train.get_maximal_number_of_exercises_in_history()), padx=4, pady=2, background='white')
+        self.history.configure(width=50, height=15.3 * (2 + self._train.history.maximal_number_of_exercises()), padx=4, pady=2, background='white')
         self.history.grid(row=1, sticky="ew", pady=10)
         self.history.grid_propagate(False)
 
@@ -107,15 +107,15 @@ class Application(tk.Frame):
 
     def create_history_items(self):
 
-        history = list(reversed(self._train.read_history()))
+        history = list(reversed(self._train.history.as_list))
 
         colors = cycle(["SeaGreen3", "IndianRed3"])
         current_color = next(colors)
         for i, entry in enumerate(history):
 
-            if not i == 0 and not (datetime.strptime(entry["date"], self._train.DATE_FORMAT) - datetime.strptime(history[i - 1]["date"], self._train.DATE_FORMAT)).days == 0:
+            if not i == 0 and not (datetime.strptime(entry["date"], self._train.DATE_FORMAT).date() == datetime.strptime(history[i - 1]["date"], self._train.DATE_FORMAT).date()):
                 current_color = next(colors)
-            msg = tk.Label(self.history, width=15, height=1 * (2 + self._train.get_maximal_number_of_exercises_in_history()), font=tkFont.Font(family="Lucida Grande", size=7), bg=current_color)
+            msg = tk.Label(self.history, width=15, height=1 * (2 + self._train.history.maximal_number_of_exercises()), font=tkFont.Font(family="Lucida Grande", size=7), bg=current_color)
             msg["text"] = f"{entry['date']}\nRounds:{entry['rounds']}"
             for ex, dur in entry["exercises"].items():
                 msg["text"] = msg["text"] + f"\n{ex}: {dur:.0f}s"
@@ -292,7 +292,7 @@ class Application(tk.Frame):
             self.set_exercise_label("Done")
             self._current_time = 0
             sound_end()
-            self._train.save()
+            self._train.save_training()
             self.create_history_items()
             self.reset_command()
 
