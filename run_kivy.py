@@ -35,9 +35,6 @@ class IntervalRunner:
         for i, runner in enumerate(source_interval):
             print(runner.exercise.identifier)
 
-    def get_timing_list(self):
-        return [ex.remaining_duration for ex in self.train.interval]
-
 
 class Buttons(BoxLayout):
 
@@ -57,7 +54,7 @@ class Buttons(BoxLayout):
         self.add_widget(reset)
 
     def press_start(self, instance):
-        self.parent.ids.timer.clock.start_timer(self.parent.intervalRunner.get_timing_list())
+        self.parent.ids.timer.clock.start_timer(self.parent.intervalRunner.train.interval)
 
 
 class ClockLabel(Label):
@@ -65,7 +62,6 @@ class ClockLabel(Label):
     REFRESH_TIME = 0.01
 
     def __init__(self, **kwargs):
-
         super().__init__(**kwargs)
         self._time = 0
         self._timings = []
@@ -78,17 +74,44 @@ class ClockLabel(Label):
             if len(self._timings) == 0:
                 self._clock_event.cancel()
             else:
-                self._set_next_time()
+                self._set_next_exercise()
 
     def start_timer(self, timings):
-
         self._timings = timings.copy()
-        self._set_next_time()
+        self._set_next_exercise()
         self._clock_event = Clock.schedule_interval(self.callback, self.REFRESH_TIME)
 
-    def _set_next_time(self):
-        self._time = self._timings[0]
+    def _set_next_exercise(self):
+        self._time = self._timings[0].remaining_duration
+        self.parent.exercise.set_label_from_timings(self._timings)
+        self.parent.round.set_label_from_timings(self._timings)
+
         del self._timings[0]
+
+
+class ExerciseLabel(Label):
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+    def set_label_from_timings(self, timings: list):
+        if timings[0].exercise.identifier.lower() == "pause" or timings[0].exercise.identifier.lower() == "init":
+            self.set_label(f"{timings[0].exercise.identifier}: {timings[1].exercise.identifier} next")
+        else:
+            self.set_label(timings[0].exercise.identifier)
+
+    def set_label(self, label):
+        self.text = label
+
+
+class RoundLabel(Label):
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+    def set_label_from_timings(self, timings: list):
+        print(timings[0].exercise.identifier, timings[0].session)
+        self.text = f"Round: {timings[0].round_index + 1}/{self.parent.parent.intervalRunner.train.number_of_rounds}"
 
 
 class Timer(BoxLayout):
@@ -96,8 +119,11 @@ class Timer(BoxLayout):
     def __init__(self, **kwargs):
         super(Timer, self).__init__(**kwargs)
 
-        self.exercise = Label(text="Wide_pull_ups", font_size='30sp')
+        self.exercise = ExerciseLabel(text="Exercise", font_size='30sp')
         self.add_widget(self.exercise)
+
+        self.round = RoundLabel(text="Round", font_size='30sp')
+        self.add_widget(self.round)
 
         self.clock = ClockLabel(text='Time', font_size='30sp')
         self.add_widget(self.clock)

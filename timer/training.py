@@ -33,10 +33,11 @@ class Exercise:
 
 class Runner:
 
-    def __init__(self, session_index: int, remaining_duration: float, exercise: Exercise):
+    def __init__(self, session_index: int, remaining_duration: float, exercise: Exercise, round_index: int):
         self.session = session_index
         self._remaining_duration = remaining_duration
         self.exercise = exercise
+        self.round_index = round_index
 
     @property
     def remaining_duration(self):
@@ -129,11 +130,12 @@ class Training:
     def _create_interval(self):
 
         self._interval = list()
-        self._interval.append(Runner(-1, self.init.round_duration, self.init))
+        self._interval.append(Runner(-1, self.init.round_duration, self.init, -1))
         for j, exer in enumerate(self._exercise_loop):
-            if not j == 0:
-                self._interval.append(Runner(j, self.pause.round_duration, self.pause))
-            self._interval.append(Runner(j, exer.round_duration, exer))
+            round_index = int(j / len(self._exercises))
+            self._interval.append(Runner(j, exer.round_duration, exer, round_index))
+            if not j == len(self._exercise_loop) - 1:
+                self._interval.append(Runner(j, self.pause.round_duration, self.pause, round_index))
 
     @property
     def interval(self):
