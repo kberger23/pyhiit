@@ -61,7 +61,10 @@ class Training:
     WIDE_PUSH_UPS = "Wide push-ups"
     PUSH_UPS = "Push-ups"
 
-    AVAILABLE_EXERCISES = [WIDE_PULL_UPS, BACK_ROWS, WIDE_PUSH_UPS, PUSH_UPS]
+    SHOULDER = "Shoulders"
+
+    BICEPS_CURL_L = "Bicep curls left"
+    BICEPS_CURL_R = "Bicep curls right"
 
     DATE_FORMAT = "%d.%m.%Y %H:%M"
 
@@ -75,6 +78,10 @@ class Training:
         self._exercises = [Exercise(ex, self._data[ex]) for ex in exercises]
         self._init = Exercise(self.INIT, self._data[self.INIT])
         self._pause = Exercise(self.PAUSE, self._data[self.PAUSE])
+
+    @property
+    def available_exercises(self):
+        return list(self._data.keys())
 
     @property
     def number_of_rounds(self):
