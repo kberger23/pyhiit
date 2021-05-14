@@ -4,8 +4,8 @@ from kivy.uix.gridlayout import GridLayout
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.label import Label
 from kivy.uix.button import Button
-from kivy.animation import Animation
-from kivy.properties import StringProperty, NumericProperty
+from kivy.graphics import Color, Line
+from kivy.properties import NumericProperty
 
 from kivy.clock import Clock
 
@@ -59,17 +59,21 @@ class Buttons(BoxLayout):
 
 class ClockLabel(Label):
 
-    REFRESH_TIME = 0.01
+    REFRESH_TIME = 1./60.
+    angle = NumericProperty(360)
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self._time = 0
         self._timings = []
         self._clock_event = None
+        with self.canvas:
+            self._line = Line(width=5, color=Color(0, 0, 1))
 
     def callback(self, dt):
-        self._time -= dt
-        self.text = f"{max(self._time, 0):5.1f}s"
+        self._time = max(0, self._time - dt)
+        self._line.circle = self.center_x, self.center_y, 90, 0, 360 * (self._time / 60 % 1)
+        self.text = f"{max(self._time, 0):5.1f}"
         if self._time < 1E-6:
             if len(self._timings) == 0:
                 self._clock_event.cancel()
@@ -110,7 +114,6 @@ class RoundLabel(Label):
         super().__init__(**kwargs)
 
     def set_label_from_timings(self, timings: list):
-        print(timings[0].exercise.identifier, timings[0].session)
         self.text = f"Round: {timings[0].round_index + 1}/{self.parent.parent.intervalRunner.train.number_of_rounds}"
 
 
