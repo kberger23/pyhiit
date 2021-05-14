@@ -1,5 +1,6 @@
 import json
 from datetime import datetime
+from types import SimpleNamespace
 
 from timer.const import EXERCISE_JSON, DEBUG, DEBUG_INTERVAL_TIME, EXERCISE_HISTORY_JSON
 
@@ -55,26 +56,17 @@ class Training:
     PAUSE = "Pause"
     INIT = "Init"
 
-    WIDE_PULL_UPS = "Wide pull-ups"
-    BACK_ROWS = "Back rows"
-
-    WIDE_PUSH_UPS = "Wide push-ups"
-    PUSH_UPS = "Push-ups"
-
-    SHOULDER = "Shoulders"
-
-    BICEPS_CURL_L = "Bicep curls left"
-    BICEPS_CURL_R = "Bicep curls right"
-
     DATE_FORMAT = "%d.%m.%Y %H:%M"
 
-    def __init__(self, exercises: list, number_of_round: int = 3):
+    def __init__(self, exercises: list = None, number_of_round: int = 3):
         self._number_of_round = number_of_round
         self._interval = None
 
         with open(EXERCISE_JSON, "r+") as file:
             self._data = json.load(file)
 
+        if exercises is None:
+            exercises = list(self.history.as_list[-1]["exercises"].keys())
         self._exercises = [Exercise(ex, self._data[ex]) for ex in exercises]
         self._init = Exercise(self.INIT, self._data[self.INIT])
         self._pause = Exercise(self.PAUSE, self._data[self.PAUSE])
@@ -82,6 +74,13 @@ class Training:
     @property
     def available_exercises(self):
         return list(self._data.keys())
+
+    @property
+    def exercises_identifier(self):
+        ex = SimpleNamespace()
+        for key in self._data.keys():
+            ex.__dict__[key.replace(" ", "_")] = key
+        return ex
 
     @property
     def number_of_rounds(self):

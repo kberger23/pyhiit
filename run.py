@@ -27,7 +27,7 @@ class Application(tk.Frame):
         self._current_session = -1
         self._clicked_start = False
         self._pause = False
-        self._train = Training([Training.PUSH_UPS, Training.WIDE_PUSH_UPS])
+        self._train = Training()
 
         self.master = master
         self.pack()
