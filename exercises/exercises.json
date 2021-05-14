@@ -16,5 +16,14 @@
     },
     "Wide push-ups": {
         "duration": 30
+    },
+    "Shoulder": {
+        "duration": 30
+    },
+    "Bicep curls left": {
+        "duration": 30
+    },
+    "Bicep curls right": {
+        "duration": 30
     }
 }

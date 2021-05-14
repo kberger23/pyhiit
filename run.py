@@ -27,7 +27,7 @@ class Application(tk.Frame):
         self._current_session = -1
         self._clicked_start = False
         self._pause = False
-        self._train = Training([Training.PUSH_UPS, Training.WIDE_PUSH_UPS])
+        self._train = Training()
 
         self.master = master
         self.pack()
@@ -128,7 +128,7 @@ class Application(tk.Frame):
 
         self.choose_exercise(default, index)
         exercises_string_var = tk.StringVar(value=default)
-        self._exercise_dropdowns.append(tk.OptionMenu(self.general, exercises_string_var, *self._train.AVAILABLE_EXERCISES, command=lambda x: self.choose_exercise(x, index)))
+        self._exercise_dropdowns.append(tk.OptionMenu(self.general, exercises_string_var, *self._train.available_exercises, command=lambda x: self.choose_exercise(x, index)))
         self._exercise_dropdowns[-1].config(width=24, height=1, anchor="w", font=tkFont.Font(family="Lucida Grande", size=15))
         row = 3 + len(self._exercise_dropdowns)
         self._exercise_dropdowns[-1].grid(row=row, column=0, columnspan=1, pady=4, sticky="W")
@@ -141,7 +141,7 @@ class Application(tk.Frame):
         if self._new_exercise:
             self._new_exercise.destroy()
             self._remove_exercise.destroy()
-        self._new_exercise = tk.Button(self.general, text='+', command=lambda: self.create_drop_down_exercise(len(self._exercise_dropdowns), self._train.AVAILABLE_EXERCISES[-1]), bg="gainsboro", bd=1, padx=6, pady=2, font=tkFont.Font(family="Lucida Grande", size=15))
+        self._new_exercise = tk.Button(self.general, text='+', command=lambda: self.create_drop_down_exercise(len(self._exercise_dropdowns), self._train.available_exercises[-1]), bg="gainsboro", bd=1, padx=6, pady=2, font=tkFont.Font(family="Lucida Grande", size=15))
         self._new_exercise.config(width=2)
         self._new_exercise.grid(row=3 + len(self._exercise_dropdowns) + 1, column=0, sticky="W")
 
