@@ -47,6 +47,7 @@ class Buttons(BoxLayout):
         self.pause.bind(on_press=self.press_pause)
         self.add_widget(self.pause)
         reset = Button(text='Reset', font_size=self.BUTTON_FONT_SIZE, size=self.BUTTON_SIZE, size_hint=self.BUTTON_SIZE_HINT)
+        reset.bind(on_press=self.press_reset)
         self.add_widget(reset)
 
     def press_start(self, instance):
@@ -55,11 +56,16 @@ class Buttons(BoxLayout):
     def press_pause(self, instance):
         if self._paused:
             self.pause.text = "Pause"
+            self._paused = False
             self.parent.ids.timer.clock.resume()
         else:
-            self.pause.text = "Resume"
-            self.parent.ids.timer.clock.pause()
-            self._paused = True
+            if self.parent.ids.timer.clock.started:
+                self.pause.text = "Resume"
+                self.parent.ids.timer.clock.pause()
+                self._paused = True
+
+    def press_reset(self, instance):
+        print("reset")
 
 
 class ClockLabel(Label):
@@ -72,13 +78,15 @@ class ClockLabel(Label):
         self._time = 0
         self._timings = []
         self.clock_event = None
+        self.started = False
         with self.canvas:
             self._line = Line(width=5, color=Color(0, 0, 1))
 
     def pause(self):
-        self._timings[0].remaining_duration = self._time
-        self.text = f"{max(self._time, 0):5.1f}"
-        self.clock_event.cancel()
+        if self.started:
+            self._timings[0].remaining_duration = self._time
+            self.text = f"{max(self._time, 0):5.1f}"
+            self.clock_event.cancel()
 
     def callback(self, dt):
         self._time = max(0, self._time - dt)
@@ -92,11 +100,13 @@ class ClockLabel(Label):
 
     def start_timer(self, timings):
         self._timings = timings.copy()
+        self.started = True
         self.resume()
 
     def resume(self):
-        self._set_next_exercise()
-        self.clock_event = Clock.schedule_interval(self.callback, self.REFRESH_TIME)
+        if self.started:
+            self._set_next_exercise()
+            self.clock_event = Clock.schedule_interval(self.callback, self.REFRESH_TIME)
 
     def _set_next_exercise(self):
         self._time = self._timings[0].remaining_duration
