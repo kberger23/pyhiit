@@ -38,16 +38,28 @@ class Buttons(BoxLayout):
     def __init__(self, **kwargs):
         super(Buttons, self).__init__(**kwargs)
 
+        self._paused = False
+
         start = Button(text='Start', font_size=self.BUTTON_FONT_SIZE, size=self.BUTTON_SIZE, size_hint=self.BUTTON_SIZE_HINT)
         start.bind(on_press=self.press_start)
         self.add_widget(start)
-        pause = Button(text='Pause', font_size=self.BUTTON_FONT_SIZE, size=self.BUTTON_SIZE, size_hint=self.BUTTON_SIZE_HINT)
-        self.add_widget(pause)
+        self.pause = Button(text='Pause', font_size=self.BUTTON_FONT_SIZE, size=self.BUTTON_SIZE, size_hint=self.BUTTON_SIZE_HINT)
+        self.pause.bind(on_press=self.press_pause)
+        self.add_widget(self.pause)
         reset = Button(text='Reset', font_size=self.BUTTON_FONT_SIZE, size=self.BUTTON_SIZE, size_hint=self.BUTTON_SIZE_HINT)
         self.add_widget(reset)
 
     def press_start(self, instance):
         self.parent.ids.timer.clock.start_timer(self.parent.intervalRunner.train.interval)
+
+    def press_pause(self, instance):
+        if self._paused:
+            self.pause.text = "Pause"
+            self.parent.ids.timer.clock.resume()
+        else:
+            self.pause.text = "Resume"
+            self.parent.ids.timer.clock.pause()
+            self._paused = True
 
 
 class ClockLabel(Label):
@@ -59,9 +71,14 @@ class ClockLabel(Label):
         super().__init__(**kwargs)
         self._time = 0
         self._timings = []
-        self._clock_event = None
+        self.clock_event = None
         with self.canvas:
             self._line = Line(width=5, color=Color(0, 0, 1))
+
+    def pause(self):
+        self._timings[0].remaining_duration = self._time
+        self.text = f"{max(self._time, 0):5.1f}"
+        self.clock_event.cancel()
 
     def callback(self, dt):
         self._time = max(0, self._time - dt)
@@ -69,14 +86,17 @@ class ClockLabel(Label):
         self.text = f"{max(self._time, 0):5.1f}"
         if self._time < 1E-6:
             if len(self._timings) == 0:
-                self._clock_event.cancel()
+                self.clock_event.cancel()
             else:
                 self._set_next_exercise()
 
     def start_timer(self, timings):
         self._timings = timings.copy()
+        self.resume()
+
+    def resume(self):
         self._set_next_exercise()
-        self._clock_event = Clock.schedule_interval(self.callback, self.REFRESH_TIME)
+        self.clock_event = Clock.schedule_interval(self.callback, self.REFRESH_TIME)
 
     def _set_next_exercise(self):
         self._time = self._timings[0].remaining_duration
@@ -93,7 +113,7 @@ class ExerciseLabel(Label):
 
     def set_label_from_timings(self, timings: list):
         if timings[0].exercise.identifier.lower() == "pause" or timings[0].exercise.identifier.lower() == "init":
-            self.set_label(f"{timings[0].exercise.identifier}: {timings[1].exercise.identifier} next")
+            self.set_label(f"Next: {timings[1].exercise.identifier}")
         else:
             self.set_label(timings[0].exercise.identifier)
 
