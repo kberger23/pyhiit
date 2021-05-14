@@ -19,7 +19,7 @@ class IntervalRunner:
         self.current_session = -1
         self.clicked_start = False
         self.pause = False
-        self.train = Training([Training.PUSH_UPS, Training.WIDE_PUSH_UPS])
+        self.train = Training()
 
     def interval_cycle(self, clock_text):
 
