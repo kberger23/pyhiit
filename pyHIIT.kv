@@ -10,20 +10,12 @@
 
 <Timer>:
 	orientation: 'vertical'
-    canvas.before:
+    canvas:
         Color:
-            rgba: .5, .5, .5, 1
+            rgba: 1, 0, 0, 1
         Line:
-            width: 2
-            rectangle: self.x, self.y, self.width, self.height
-    ClockLabel:
-        #font_size: 30
-        #canvas:
-        #    Color:
-        #        rgb: 1,0,1
-        #    Line:
-        #        circle:self.center_x, self.center_y, 90, 0, self.angle
-        #        width: 5
+            width: 3
+            circle: self.center_x, self.center_y, min(self.center_x, self.center_y) / 1.6, 0, self.angle
 
 
 <Buttons>:
@@ -45,5 +37,7 @@
     orientation: "vertical"
 	Timer:
         id: timer
+        #size: 1, 100
+        size_hint: 1, .2
 	Buttons:
         id: buttons

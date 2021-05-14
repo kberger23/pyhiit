@@ -1,7 +1,6 @@
 from kivy.app import App
-from kivy.uix.screenmanager import ScreenManager, Screen, SlideTransition
-from kivy.uix.gridlayout import GridLayout
 from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.label import Label
 from kivy.uix.button import Button
 from kivy.graphics import Color, Line
@@ -9,12 +8,6 @@ from kivy.properties import NumericProperty
 
 from kivy.clock import Clock
 
-import numpy as np
-
-import datetime
-
-#interval runner
-import time
 from timer.training import Training
 
 
@@ -59,8 +52,8 @@ class Buttons(BoxLayout):
 
 class ClockLabel(Label):
 
-    REFRESH_TIME = 1./60.
     angle = NumericProperty(360)
+    REFRESH_TIME = 1./60.
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -72,7 +65,7 @@ class ClockLabel(Label):
 
     def callback(self, dt):
         self._time = max(0, self._time - dt)
-        self._line.circle = self.center_x, self.center_y, 90, 0, 360 * (self._time / 60 % 1)
+        self.parent.angle = 360 * (self._time / 60 % 1)
         self.text = f"{max(self._time, 0):5.1f}"
         if self._time < 1E-6:
             if len(self._timings) == 0:
@@ -117,18 +110,22 @@ class RoundLabel(Label):
         self.text = f"Round: {timings[0].round_index + 1}/{self.parent.parent.intervalRunner.train.number_of_rounds}"
 
 
-class Timer(BoxLayout):
+class Timer(FloatLayout):
+
+    angle = NumericProperty(360)
 
     def __init__(self, **kwargs):
+
+        self.angle = 360
         super(Timer, self).__init__(**kwargs)
 
-        self.exercise = ExerciseLabel(text="Exercise", font_size='30sp')
-        self.add_widget(self.exercise)
-
-        self.round = RoundLabel(text="Round", font_size='30sp')
+        self.round = RoundLabel(text="Round", font_size='30sp', pos_hint={'x': 0, 'y': 0.1}, size_hint=(1, 1))
         self.add_widget(self.round)
 
-        self.clock = ClockLabel(text='Time', font_size='30sp')
+        self.exercise = ExerciseLabel(text="Exercise", font_size='30sp', pos_hint={'x': 0, 'y': 0}, size_hint=(1, 1))
+        self.add_widget(self.exercise)
+
+        self.clock = ClockLabel(text='Time', font_size='60sp', pos_hint={'x': 0, 'y': -0.15}, size_hint=(1, 1))
         self.add_widget(self.clock)
 
 
@@ -139,21 +136,11 @@ class Overview(BoxLayout):
         self.intervalRunner = IntervalRunner()
 
 
-
 class pyHIIT(App):
 
     def build(self):
         return Overview()
 
-    # def build(self):
-    #     self.myLabel = Label(text ='Waiting for updates...')
-    #     Clock.schedule_interval(self.Callback_Clock, 0.1)
-    #
-    #     return self.myLabel
-    #
-    # def Callback_Clock(self, dt):
-    #     self.count = self.count + 1
-    #     self.myLabel.text = "Updated % d...times"% self.count
 
 if __name__ == '__main__':
     pyHIIT().run()
