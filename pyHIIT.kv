@@ -9,16 +9,13 @@
             size: self.size
 
 <Timer>:
+	orientation: 'vertical'
     canvas.before:
         Color:
             rgba: .5, .5, .5, 1
         Line:
             width: 2
             rectangle: self.x, self.y, self.width, self.height
-	BoxLayout:
-		orientation: 'vertical'
-		size: root.size
-		pos: root.pos
 
 
 <Buttons>:
@@ -39,4 +36,6 @@
 <Overview>:
     orientation: "vertical"
 	Timer:
+        id: timer
 	Buttons:
+        id: buttons
