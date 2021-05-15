@@ -20,7 +20,6 @@ from timer.training import Training
 
 global train
 
-HEIGHT_BUTTON_EXERCISES = 40
 
 class Buttons(BoxLayout):
 
@@ -386,7 +385,11 @@ class pyHIIT(App):
     def build(self):
         return Overview()
 
+from kivy.core.window import Window
 
 if __name__ == '__main__':
+    scale = 0.5
+    Window.size = (1080 * scale, 1920 * scale)
+
     train = Training()
     pyHIIT().run()
