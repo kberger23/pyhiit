@@ -138,24 +138,26 @@ class Timer(FloatLayout):
         self.angle = 360
         super(Timer, self).__init__(**kwargs)
 
-        self.round = RoundLabel(text="Round", font_size='30sp', pos_hint={'x': 0, 'y': 0.1}, size_hint=(1, 1))
+        offset = 0.05
+        self.round = RoundLabel(text="Round", font_size='30sp', pos_hint={'x': 0, 'y': 0.1 + offset}, size_hint=(1, 1))
         self.add_widget(self.round)
 
-        self.exercise = ExerciseLabel(text="Exercise", font_size='30sp', pos_hint={'x': 0, 'y': 0}, size_hint=(1, 1))
+        self.exercise = ExerciseLabel(text="Exercise", font_size='30sp', pos_hint={'x': 0, 'y': 0 + offset}, size_hint=(1, 1))
         self.add_widget(self.exercise)
 
-        self.clock = ClockLabel(text='Time', font_size='60sp', pos_hint={'x': 0, 'y': -0.15}, size_hint=(1, 1))
+        self.clock = ClockLabel(text='Time', font_size='60sp', pos_hint={'x': 0, 'y': -0.15 + offset}, size_hint=(1, 1))
         self.add_widget(self.clock)
 
 
 class ButtonWithDropDown(Button):
 
+    background_color = (0, 0, 0.6, 1)
+    background_normal = ""
+
     def __init__(self, **kwargs):
         self._index = kwargs["index"]
         kwargs.pop("index")
         super().__init__(**kwargs)
-        self.background_normal = ""
-        self.background_color = (0, 0, 0.6, 1)
 
         self._dropdown = DropDown()
         for inner_ex in train.available_exercises:
@@ -200,10 +202,12 @@ class ExercisesInitPaus(ScrollView):
         layout = GridLayout(cols=1, spacing=10, padding=10, size_hint_y=None)
         # Make sure the height is such that there is something to scroll.
         layout.bind(minimum_height=layout.setter('height'))
-        btn = Button(text=train.init.identifier, size_hint_x=.3, size_hint_y=None, height=40, font_size='15sp')
-        layout.add_widget(btn)
-        btn = Button(text=train.pause.identifier, size_hint_x=.3, size_hint_y=None, height=40, font_size='15sp')
-        layout.add_widget(btn)
+        #btn = Button(text=train.init.identifier, size_hint_x=.3, size_hint_y=None, height=40, font_size='15sp', background_normal=ButtonWithDropDown.background_normal, background_color=(0, 0, 0.2))
+        #layout.add_widget(btn)
+        #btn = Button(text=train.pause.identifier, size_hint_x=.3, size_hint_y=None, height=40, font_size='15sp', background_normal=ButtonWithDropDown.background_normal, background_color=(0, 0, 0.2))
+
+        layout.add_widget(Label(text=train.init.identifier, size_hint_x=.3, size_hint_y=None, height=40, font_size='15sp'))
+        layout.add_widget(Label(text=train.pause.identifier, size_hint_x=.3, size_hint_y=None, height=40, font_size='15sp'))
 
         self.add_widget(layout)
 
