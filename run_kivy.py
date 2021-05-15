@@ -185,9 +185,10 @@ class SetRounds(TextInput):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.bind(text=self.text_change)
+        self.bind(text=self.text_change, focus=self.on_focus)
 
-    def text_change(self, instance, value):
+    @staticmethod
+    def text_change(instance, value):
         try:
             train.number_of_rounds = int(value)
         except ValueError:
@@ -200,6 +201,12 @@ class SetRounds(TextInput):
         else:
             s = '.'.join([re.sub(pat, '', s) for s in substring.split('.', 1)])
         return super().insert_text(s, from_undo=from_undo)
+
+    def on_focus(self, instance, value):
+        if value:
+            Clock.schedule_once(lambda dt: self.select_all())
+        else:
+            Clock.schedule_once(lambda dt: self.select_text(0, 0))
 
 
 class ExerciseDuration(TextInput):
@@ -223,7 +230,6 @@ class ExerciseDuration(TextInput):
             Clock.schedule_once(lambda dt: self.select_all())
         else:
             Clock.schedule_once(lambda dt: self.select_text(0, 0))
-
 
     def insert_text(self, substring, from_undo=False):
         pat = self.pat
