@@ -1,3 +1,5 @@
+import re
+
 from kivy.app import App
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.floatlayout import FloatLayout
@@ -176,7 +178,29 @@ class ButtonWithDropDown(Button):
         self.text = x
         train.set_exercise(x, self._index)
 
-import re
+
+class SetRounds(TextInput):
+
+    pat = re.compile('[^0-9]')
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.bind(text=self.text_change)
+
+    def text_change(self, instance, value):
+        try:
+            train.number_of_rounds = int(value)
+        except ValueError:
+            pass
+
+    def insert_text(self, substring, from_undo=False):
+        pat = self.pat
+        if '.' in self.text:
+            s = re.sub(pat, '', substring)
+        else:
+            s = '.'.join([re.sub(pat, '', s) for s in substring.split('.', 1)])
+        return super().insert_text(s, from_undo=from_undo)
+
 
 class ExerciseDuration(TextInput):
 
@@ -238,6 +262,9 @@ class ExercisesInitPause(ScrollView):
         #btn = Button(text=train.pause.identifier, size_hint_x=.3, size_hint_y=None, height=40, font_size='15sp', background_normal=ButtonWithDropDown.background_normal, background_color=(0, 0, 0.2))
 
         size_dur = 0.4666
+        layout.add_widget(Label(text="Rounds", size_hint_x=1-size_dur, size_hint_y=None, height=40, font_size='15sp'))
+        layout.add_widget(SetRounds(text=str(train.number_of_rounds), size_hint_x=size_dur, size_hint_y=None, height=40, font_size='15sp', multiline=False))
+
         layout.add_widget(Label(text=train.init.identifier, size_hint_x=1-size_dur, size_hint_y=None, height=40, font_size='15sp'))
         layout.add_widget(ExerciseDuration(text=str(train.init.round_duration), size_hint_x=size_dur, size_hint_y=None, height=40, font_size='15sp', multiline=False, exercise=train.init))
         layout.add_widget(Label(text=train.pause.identifier, size_hint_x=1-size_dur, size_hint_y=None, height=40, font_size='15sp'))
