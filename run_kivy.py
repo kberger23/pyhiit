@@ -333,7 +333,13 @@ class ExercisesPlus(BoxLayout):
 
 class PastExercisesLabel(Label):
     def __init__(self, **kwargs):
+        self._color = kwargs["color"]
+        kwargs.pop("color")
+
         super().__init__(**kwargs)
+
+from datetime import datetime
+from itertools import cycle
 
 
 class PastSessions(ScrollView):
@@ -345,12 +351,18 @@ class PastSessions(ScrollView):
 
         self._layout = GridLayout(rows=1, spacing=3, size_hint_x=None)
         self._layout.bind(minimum_width=self._layout.setter('width'))
+
+        colors = cycle([(0.6, 0, 0, 1), (0, 0, 0.6, 1)])
+        color = next(colors)
+
         for i, entry in enumerate(history):
+            if not i == 0 and not (datetime.strptime(entry["date"], train.DATE_FORMAT).date() == datetime.strptime(history[i - 1]["date"], train.DATE_FORMAT).date()):
+                color = next(colors)
             text = f"{entry['date']}\nRounds:{entry['rounds']}"
             for ex, dur in entry["exercises"].items():
                 text = text + f"\n{ex}: {dur:.0f}s"
 
-            self._layout.add_widget(PastExercisesLabel(text=text, size_hint_x=None, width=100, font_size='11sp'))
+            self._layout.add_widget(PastExercisesLabel(text=text, size_hint_x=None, width=100, font_size='11sp', color=color))
 
         self.add_widget(self._layout)
 

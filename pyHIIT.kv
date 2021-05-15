@@ -43,12 +43,10 @@
 <PastExercisesLabel>:
     canvas.before:
         Color:
-            rgba: 1, 0, 0, 1
+            rgba: self._color
         Rectangle:
-            #pos: self.pos[0] + self.size[0] * 0.1 / 2, self.pos[1] + self.size[1] * 0.1 / 2
-            #size: self.size[0] * 0.9, self.size[1] * 0.9
-            pos: self.pos
-            size: self.size
+            pos: self.pos[0], self.pos[1] + self.size[1]*0.1
+            size: self.size[0], self.size[1] * 0.98
     text_size: self.size[0] * 0.98, self.size[1] * 0.98
     valign: "top"
     halign: "left"
