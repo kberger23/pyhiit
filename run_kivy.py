@@ -194,7 +194,7 @@ class Exercises(ScrollView):
         self.add_widget(layout)
 
 
-class ExercisesInitPaus(ScrollView):
+class ExercisesInitPause(ScrollView):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -218,7 +218,7 @@ class ExercisesPlus(BoxLayout):
         super().__init__(**kwargs)
 
         self.add_widget(Exercises(size_hint_x=.7))
-        self.add_widget(ExercisesInitPaus(size_hint_x=.3))
+        self.add_widget(ExercisesInitPause(size_hint_x=.3))
 
 
 class Overview(BoxLayout):
