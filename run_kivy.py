@@ -162,6 +162,7 @@ class MyDropDown(DropDown):
         print(f"index = {self._index}")
         self._button.text = text
 
+
 class ButtonWithDropDown(Button):
 
     def __init__(self, **kwargs):
@@ -176,7 +177,11 @@ class ButtonWithDropDown(Button):
             self._dropdown.add_widget(btn)
 
         self.bind(on_release=self._dropdown.open)
-        self._dropdown.bind(on_select=lambda instance, x: setattr(self, 'text', x))
+        self._dropdown.bind(on_select=lambda instance, x: self.change_exercise(x))
+
+    def change_exercise(self, x):
+        self.text = x
+        train.set_exercise(x, self._index)
 
 
 class Exercises(ScrollView):
