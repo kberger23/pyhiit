@@ -90,7 +90,7 @@ class ClockLabel(Label):
     def pause(self):
         if self.started and self._timings:
             self._timings[0].remaining_duration = self._time
-            self.text = f"{max(self._time, 0):5.1f}"
+            self.text = f"{max(self._time, 0):.1f}"
             self.clock_event.cancel()
 
     def resume(self):
@@ -101,11 +101,10 @@ class ClockLabel(Label):
     def callback(self, dt):
         self._time = max(0, self._time - dt)
         self.parent.angle = 360 * (self._time / 60 % 1)
-        self.text = f"{max(self._time, 0):5.1f}"
+        self.text = f"{max(self._time, 0):.1f}"
         if self._time < 1E-6:
             if len(self._timings) == 0:
                 self.clock_event.cancel()
-                print("Done")
                 train.save_training()
                 self.parent.parent.ids.past_sessions.set_sessions()
             else:
@@ -155,7 +154,7 @@ class RoundLabel(Label):
         self.text = self._initial_text
 
     def set_label_from_timings(self, timings: list):
-        self.text = f"Round: {timings[0].round_index + 1}/{train.number_of_rounds}"
+        self.text = f"{timings[0].round_index + 1}/{train.number_of_rounds}"
 
 
 class Timer(FloatLayout):
