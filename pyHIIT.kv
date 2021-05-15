@@ -40,6 +40,18 @@
     size_hint: 1, None
     orientation: "horizontal"
 
+<PastExercisesLabel>:
+    canvas.before:
+        Color:
+            rgba: 1, 0, 0, 1
+        Rectangle:
+            pos: self.pos[0] + self.size[0] * 0.1 / 2, self.pos[1] + self.size[1] * 0.1 / 2
+            size: self.size[0] * 0.9, self.size[1] * 0.9
+    text_size: root.width * 0.85, root.height * 0.8
+    size: self.texture_size
+    padding: 0,0
+    valign: "top"
+
 <PastSessions>:
     size_hint: 1, .07
     orientation: "horizontal"

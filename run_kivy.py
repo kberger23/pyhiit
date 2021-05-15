@@ -9,7 +9,7 @@ from kivy.uix.label import Label
 from kivy.uix.button import Button
 from kivy.uix.dropdown import DropDown
 from kivy.uix.textinput import TextInput
-from kivy.graphics import Color, Line
+from kivy.graphics import Color, Line, Rectangle
 from kivy.properties import NumericProperty
 
 from kivy.clock import Clock
@@ -264,6 +264,7 @@ class ExerciseRemove(Button):
 class Exercises(ScrollView):
 
     COLOR_PLUS_MINUS = (0.1, 0.1, 0.1)
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
@@ -330,10 +331,27 @@ class ExercisesPlus(BoxLayout):
         self.add_widget(ExercisesInitPause(size_hint_x=.3))
 
 
-class PastSessions(BoxLayout):
+class PastExercisesLabel(Label):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+
+class PastSessions(FloatLayout):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+
+        history = list(reversed(train.history.as_list))
+
+        for i, entry in enumerate(history):
+            size = 0.15
+            text = f"{entry['date']}\nRounds:{entry['rounds']}"
+            for ex, dur in entry["exercises"].items():
+                text = text + f"\n{ex}: {dur:.0f}s"
+
+            self.add_widget(PastExercisesLabel(text=text, size_hint_x=size, size_hint_y=1, pos_hint={'x': size*i, 'y': 0}, font_size='10sp'))
+
+
 
 
 class Overview(BoxLayout):
