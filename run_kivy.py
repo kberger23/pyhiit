@@ -18,6 +18,7 @@ from timer.training import Training
 
 global train
 
+HEIGHT_BUTTON_EXERCISES = 40
 
 class Buttons(BoxLayout):
 
@@ -41,6 +42,9 @@ class Buttons(BoxLayout):
         self.add_widget(reset)
 
     def press_start(self, instance):
+        if self._paused:
+            self.pause.text = "Pause"
+            self._paused = False
         self.parent.ids.timer.clock.start_timer(train.interval)
 
     def press_pause(self, instance):
@@ -292,7 +296,7 @@ class Exercises(ScrollView):
     def add_exercise_to_layout(self, instance):
         self._layout.remove_widget(instance)
         train.add_exercise(train.available_exercises[-1])
-        self.add_exercise_widgets(len(train.exercises), train.exercises[-1])
+        self.add_exercise_widgets(len(train.exercises) - 1, train.exercises[-1])
         self.add_plus_to_layout()
 
 
