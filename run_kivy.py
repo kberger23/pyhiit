@@ -210,13 +210,20 @@ class ExerciseDuration(TextInput):
         self._exercise = kwargs["exercise"]
         kwargs.pop("exercise")
         super().__init__(**kwargs)
-        self.bind(text=self.text_change)
+        self.bind(text=self.text_change, focus=self.on_focus)
 
     def text_change(self, instance, value):
         try:
             self._exercise.round_duration = float(value)
         except ValueError:
             pass
+
+    def on_focus(self, instance, value):
+        if value:
+            Clock.schedule_once(lambda dt: self.select_all())
+        else:
+            Clock.schedule_once(lambda dt: self.select_text(0, 0))
+
 
     def insert_text(self, substring, from_undo=False):
         pat = self.pat
@@ -258,7 +265,6 @@ class Exercises(ScrollView):
             self.add_exercise_widgets(i, ex)
 
         self.add_plus_to_layout()
-
         self.add_widget(self._layout)
 
     def add_plus_to_layout(self):
@@ -279,8 +285,7 @@ class Exercises(ScrollView):
     def add_exercise_to_layout(self, instance):
         self._layout.remove_widget(instance)
         train.add_exercise(train.available_exercises[-1])
-
-        self.add_exercise_widgets(2, train.exercises[0])
+        self.add_exercise_widgets(len(train.exercises), train.exercises[-1])
         self.add_plus_to_layout()
 
 
