@@ -23,8 +23,8 @@
 
 
 <Buttons>:
-    size: 1, 100
-    size_hint: 1, None
+    size: 1, 20
+    size_hint: 1, .05
     canvas.before:
         Color:
             rgba: .5, .5, .5, 1
@@ -57,6 +57,16 @@
             width: 2
             rectangle: self.x, self.y, self.width, self.height
 
+<PastSessions>:
+    size_hint: 1, .07
+    orientation: "horizontal"
+    canvas.before:
+        Color:
+            rgba: .5, .5, .5, 1
+        Line:
+            width: 2
+            rectangle: self.x, self.y, self.width, self.height
+
 <Overview>:
     orientation: "vertical"
 	Timer:
@@ -67,3 +77,5 @@
         id: buttons
 	ExercisesPlus:
         id: exercises_plus
+	PastSessions:
+        id: past_sessions

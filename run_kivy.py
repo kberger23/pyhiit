@@ -21,8 +21,8 @@ global train
 
 class Buttons(BoxLayout):
 
-    BUTTON_SIZE = (100, 100)
-    BUTTON_SIZE_HINT = (1./3, None)
+    BUTTON_SIZE = (100, 50)
+    BUTTON_SIZE_HINT = (1./3, 1)
     BUTTON_FONT_SIZE = 14
 
     def __init__(self, **kwargs):
@@ -259,6 +259,7 @@ class ExerciseRemove(Button):
 
 class Exercises(ScrollView):
 
+    COLOR_PLUS_MINUS = (0.1, 0.1, 0.1)
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
@@ -274,7 +275,7 @@ class Exercises(ScrollView):
         self.add_widget(self._layout)
 
     def add_plus_to_layout(self):
-        plus = Button(text="+", size_hint_x=.05, size_hint_y=None, height=40, font_size='15sp')
+        plus = Button(text="+", size_hint_x=.05, size_hint_y=None, height=40, font_size='15sp', background_normal="", background_color=self.COLOR_PLUS_MINUS)
         plus.bind(on_press=self.add_exercise_to_layout)
         self._layout.add_widget(plus)
 
@@ -283,7 +284,7 @@ class Exercises(ScrollView):
         drop_down_button = ButtonWithDropDown(text=ex.identifier, size_hint_x=.7, size_hint_y=None, height=40, font_size='15sp', index=index)
         text_input = ExerciseDuration(text=str(ex.round_duration), size_hint_x=.2, size_hint_y=None, height=40, font_size='15sp', multiline=False, exercise=ex)
 
-        self._layout.add_widget(ExerciseRemove(text="-", size_hint_x=.05, size_hint_y=None, height=40, font_size='15sp', ex_button=drop_down_button, dur_button=text_input))
+        self._layout.add_widget(ExerciseRemove(text="-", size_hint_x=.05, size_hint_y=None, height=40, font_size='15sp', ex_button=drop_down_button, dur_button=text_input, background_normal="", background_color=self.COLOR_PLUS_MINUS))
 
         self._layout.add_widget(drop_down_button)
         self._layout.add_widget(text_input)
@@ -303,9 +304,6 @@ class ExercisesInitPause(ScrollView):
         layout = GridLayout(cols=2, spacing=10, padding=10, size_hint_y=None)
         # Make sure the height is such that there is something to scroll.
         layout.bind(minimum_height=layout.setter('height'))
-        #btn = Button(text=train.init.identifier, size_hint_x=.3, size_hint_y=None, height=40, font_size='15sp', background_normal=ButtonWithDropDown.background_normal, background_color=(0, 0, 0.2))
-        #layout.add_widget(btn)
-        #btn = Button(text=train.pause.identifier, size_hint_x=.3, size_hint_y=None, height=40, font_size='15sp', background_normal=ButtonWithDropDown.background_normal, background_color=(0, 0, 0.2))
 
         size_dur = 0.4666
         layout.add_widget(Label(text="Rounds", size_hint_x=1-size_dur, size_hint_y=None, height=40, font_size='15sp'))
@@ -326,6 +324,12 @@ class ExercisesPlus(BoxLayout):
 
         self.add_widget(Exercises(size_hint_x=.7))
         self.add_widget(ExercisesInitPause(size_hint_x=.3))
+
+
+class PastSessions(BoxLayout):
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
 
 
 class Overview(BoxLayout):
