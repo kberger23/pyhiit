@@ -106,6 +106,9 @@ class Training:
     def exercises(self):
         return self._exercises
 
+    def add_exercise(self, exercise):
+        self.set_exercise(exercise, len(self._exercises))
+
     def set_exercise(self, value, index):
         if not isinstance(value, str):
             raise TypeError("String are required")
@@ -121,10 +124,13 @@ class Training:
         if self._interval is not None:
             self.reset_interval()
 
-    def remove_last_exercise(self):
-        del self._exercises[-1]
+    def remove_exercise(self, index):
+        del self._exercises[index]
         if self._interval is not None:
             self.reset_interval()
+
+    def remove_last_exercise(self):
+        self.remove_exercise(-1)
 
     @property
     def _exercise_loop(self):

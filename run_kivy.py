@@ -158,7 +158,7 @@ class ButtonWithDropDown(Button):
     background_normal = ""
 
     def __init__(self, **kwargs):
-        self._index = kwargs["index"]
+        self.index = kwargs["index"]
         kwargs.pop("index")
         super().__init__(**kwargs)
 
@@ -176,7 +176,7 @@ class ButtonWithDropDown(Button):
 
     def change_exercise(self, x):
         self.text = x
-        train.set_exercise(x, self._index)
+        train.set_exercise(x, self.index)
 
 
 class SetRounds(TextInput):
@@ -238,6 +238,7 @@ class ExerciseRemove(Button):
         self.bind(on_press=self.press)
 
     def press(self, instance):
+        train.remove_exercise(self.ex_button.index)
         self.parent.remove_widget(self.ex_button)
         self.parent.remove_widget(self.dur_button)
         self.parent.remove_widget(self)
@@ -248,22 +249,40 @@ class Exercises(ScrollView):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        layout = GridLayout(cols=3, spacing=10, padding=10, size_hint_y=None)
+        self._layout = GridLayout(cols=3, spacing=10, padding=10, size_hint_y=None)
 
         # Make sure the height is such that there is something to scroll.
-        layout.bind(minimum_height=layout.setter('height'))
+        self._layout.bind(minimum_height=self._layout.setter('height'))
 
         for i, ex in enumerate(train.exercises):
+            self.add_exercise_widgets(i, ex)
 
-            drop_down_button = ButtonWithDropDown(text=ex.identifier, size_hint_x=.7, size_hint_y=None, height=40, font_size='15sp', index=i)
-            text_input = ExerciseDuration(text=str(ex.round_duration), size_hint_x=.2, size_hint_y=None, height=40, font_size='15sp', multiline=False, exercise=ex)
+        self.add_plus_to_layout()
 
-            layout.add_widget(ExerciseRemove(text="-", size_hint_x=.05, size_hint_y=None, height=40, font_size='15sp', ex_button=drop_down_button, dur_button=text_input))
+        self.add_widget(self._layout)
 
-            layout.add_widget(drop_down_button)
-            layout.add_widget(text_input)
+    def add_plus_to_layout(self):
+        plus = Button(text="+", size_hint_x=.05, size_hint_y=None, height=40, font_size='15sp')
+        plus.bind(on_press=self.add_exercise_to_layout)
+        self._layout.add_widget(plus)
 
-        self.add_widget(layout)
+    def add_exercise_widgets(self, index, ex):
+
+        drop_down_button = ButtonWithDropDown(text=ex.identifier, size_hint_x=.7, size_hint_y=None, height=40, font_size='15sp', index=index)
+        text_input = ExerciseDuration(text=str(ex.round_duration), size_hint_x=.2, size_hint_y=None, height=40, font_size='15sp', multiline=False, exercise=ex)
+
+        self._layout.add_widget(ExerciseRemove(text="-", size_hint_x=.05, size_hint_y=None, height=40, font_size='15sp', ex_button=drop_down_button, dur_button=text_input))
+
+        self._layout.add_widget(drop_down_button)
+        self._layout.add_widget(text_input)
+
+    def add_exercise_to_layout(self, instance):
+        self._layout.remove_widget(instance)
+        train.add_exercise(train.available_exercises[-1])
+
+        self.add_exercise_widgets(2, train.exercises[0])
+        self.add_plus_to_layout()
+
 
 class ExercisesInitPause(ScrollView):
 
