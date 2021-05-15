@@ -1,6 +1,6 @@
 from pathlib import Path
 
-DEBUG = False
+DEBUG = True
 DEBUG_INTERVAL_TIME = 1
 
 EXERCISE_JSON = Path(__file__).parents[0]/"../exercises/exercises.json"

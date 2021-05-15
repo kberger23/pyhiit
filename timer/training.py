@@ -33,10 +33,11 @@ class Exercise:
 
 class Runner:
 
-    def __init__(self, session_index: int, remaining_duration: float, exercise: Exercise):
+    def __init__(self, session_index: int, remaining_duration: float, exercise: Exercise, round_index: int):
         self.session = session_index
         self._remaining_duration = remaining_duration
         self.exercise = exercise
+        self.round_index = round_index
 
     @property
     def remaining_duration(self):
@@ -72,13 +73,20 @@ class Training:
         self._pause = Exercise(self.PAUSE, self._data[self.PAUSE])
 
     @property
+    def _data_only_exercises(self):
+        exercises = self._data.copy()
+        exercises.pop(self.INIT, None)
+        exercises.pop(self.PAUSE, None)
+        return exercises
+
+    @property
     def available_exercises(self):
-        return list(self._data.keys())
+        return list(self._data_only_exercises.keys())
 
     @property
     def exercises_identifier(self):
         ex = SimpleNamespace()
-        for key in self._data.keys():
+        for key in self._data_only_exercises.keys():
             ex.__dict__[key.replace(" ", "_")] = key
         return ex
 
@@ -98,6 +106,9 @@ class Training:
     def exercises(self):
         return self._exercises
 
+    def add_exercise(self, exercise):
+        self.set_exercise(exercise, len(self._exercises))
+
     def set_exercise(self, value, index):
         if not isinstance(value, str):
             raise TypeError("String are required")
@@ -113,10 +124,13 @@ class Training:
         if self._interval is not None:
             self.reset_interval()
 
-    def remove_last_exercise(self):
-        del self._exercises[-1]
+    def remove_exercise(self, index):
+        del self._exercises[index]
         if self._interval is not None:
             self.reset_interval()
+
+    def remove_last_exercise(self):
+        self.remove_exercise(-1)
 
     @property
     def _exercise_loop(self):
@@ -129,11 +143,12 @@ class Training:
     def _create_interval(self):
 
         self._interval = list()
-        self._interval.append(Runner(-1, self.init.round_duration, self.init))
+        self._interval.append(Runner(-1, self.init.round_duration, self.init, -1))
         for j, exer in enumerate(self._exercise_loop):
-            if not j == 0:
-                self._interval.append(Runner(j, self.pause.round_duration, self.pause))
-            self._interval.append(Runner(j, exer.round_duration, exer))
+            round_index = int(j / len(self._exercises))
+            self._interval.append(Runner(j, exer.round_duration, exer, round_index))
+            if not j == len(self._exercise_loop) - 1:
+                self._interval.append(Runner(j, self.pause.round_duration, self.pause, round_index))
 
     @property
     def interval(self):

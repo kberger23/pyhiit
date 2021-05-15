@@ -1,0 +1,70 @@
+#:kivy 1.7.1
+#:import Factory kivy.factory.Factory
+
+<Screen>:
+    canvas:
+        Color:
+            rgb: .2, .2, .2
+        Rectangle:
+            size: self.size
+
+<ExerciseDuration>:
+    padding: [self.width/20, (self.height-self.line_height)/2]
+
+<Timer>:
+    #size_hint: 1, .1
+	orientation: 'vertical'
+    canvas:
+        Color:
+            rgba: 1, 0, 0, 1
+        Line:
+            width: 3
+            circle: self.center_x, self.center_y, self.center_y / 2.8, 0, self.angle
+
+<Buttons>:
+    size: 1, dp(60)
+    size_hint: 1, None
+	GridLayout:
+		cols: 3
+		size_hint: None, None
+		size: 0, 0
+
+<Exercises>:
+    do_scroll_x: False
+    do_scroll_y: True
+    #size_hint: None, None
+
+<ExercisesPlus>:
+    size: 1, dp(250)
+    size_hint: 1, None
+    orientation: "horizontal"
+
+<PastExercisesLabel>:
+    canvas.before:
+        Color:
+            rgba: self._color
+        Rectangle:
+            pos: self.pos[0], self.pos[1] + self.size[1]*0.1
+            size: self.size[0], self.size[1] * 0.98
+    text_size: self.size[0] * 0.98, self.size[1] * 0.98
+    valign: "top"
+    halign: "left"
+
+<PastSessions>:
+    size: 1, dp(100)
+    size_hint: 1, None
+    do_scroll_x: True
+    do_scroll_y: False
+
+<Overview>:
+    orientation: "vertical"
+	Timer:
+        id: timer
+        #size: 1, 100
+        size_hint: 1, .2
+	Buttons:
+        id: buttons
+	ExercisesPlus:
+        id: exercises_plus
+	PastSessions:
+        id: past_sessions
