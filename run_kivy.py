@@ -60,7 +60,12 @@ class Buttons(BoxLayout):
                 self._paused = True
 
     def press_reset(self, instance):
-        print("reset")
+        self.parent.ids.timer.clock.reset()
+        self.parent.ids.timer.angle = 360
+        self.parent.ids.timer.exercise.reset()
+        self.parent.ids.timer.round.reset()
+        self.pause.text = "Pause"
+        self._paused = False
 
 
 class ClockLabel(Label):
@@ -70,12 +75,17 @@ class ClockLabel(Label):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self._initial_text = self.text
+        self.reset()
+
+    def reset(self):
         self._time = 0
         self._timings = []
         self.clock_event = None
         self.started = False
         with self.canvas:
             self._line = Line(width=5, color=Color(0, 0, 1))
+        self.text = self._initial_text
 
     def pause(self):
         if self.started and self._timings:
@@ -120,6 +130,10 @@ class ExerciseLabel(Label):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self._initial_text = self.text
+
+    def reset(self):
+        self.text = self._initial_text
 
     def set_label_from_timings(self, timings: list):
         if timings[0].exercise.identifier.lower() == "pause" or timings[0].exercise.identifier.lower() == "init":
@@ -135,6 +149,10 @@ class RoundLabel(Label):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self._initial_text = self.text
+
+    def reset(self):
+        self.text = self._initial_text
 
     def set_label_from_timings(self, timings: list):
         self.text = f"Round: {timings[0].round_index + 1}/{train.number_of_rounds}"
@@ -150,13 +168,13 @@ class Timer(FloatLayout):
         super(Timer, self).__init__(**kwargs)
 
         offset = 0.05
-        self.round = RoundLabel(text="Round", font_size='30sp', pos_hint={'x': 0, 'y': 0.1 + offset}, size_hint=(1, 1))
+        self.round = RoundLabel(text="Round", font_size='50sp', pos_hint={'x': 0, 'y': 0.1 + offset}, size_hint=(1, 1))
         self.add_widget(self.round)
 
-        self.exercise = ExerciseLabel(text="Exercise", font_size='30sp', pos_hint={'x': 0, 'y': 0 + offset}, size_hint=(1, 1))
+        self.exercise = ExerciseLabel(text="Exercise", font_size='50sp', pos_hint={'x': 0, 'y': 0 + offset}, size_hint=(1, 1))
         self.add_widget(self.exercise)
 
-        self.clock = ClockLabel(text='Time', font_size='60sp', pos_hint={'x': 0, 'y': -0.15 + offset}, size_hint=(1, 1))
+        self.clock = ClockLabel(text='Time', font_size='100sp', pos_hint={'x': 0, 'y': -0.15 + offset}, size_hint=(1, 1))
         self.add_widget(self.clock)
 
 
@@ -230,6 +248,7 @@ class ExerciseDuration(TextInput):
     def text_change(self, instance, value):
         try:
             self._exercise.round_duration = float(value)
+            train.reset_interval()
         except ValueError:
             pass
 
