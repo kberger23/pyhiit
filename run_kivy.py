@@ -1,8 +1,11 @@
 from kivy.app import App
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.floatlayout import FloatLayout
+from kivy.uix.gridlayout import GridLayout
+from kivy.uix.scrollview import ScrollView
 from kivy.uix.label import Label
 from kivy.uix.button import Button
+from kivy.uix.dropdown import DropDown
 from kivy.graphics import Color, Line
 from kivy.properties import NumericProperty
 
@@ -10,23 +13,7 @@ from kivy.clock import Clock
 
 from timer.training import Training
 
-
-class IntervalRunner:
-
-    def __init__(self):
-
-        self.current_time = 0
-        self.current_session = -1
-        self.clicked_start = False
-        self.pause = False
-        self.train = Training()
-
-    def interval_cycle(self, clock_text):
-
-        source_interval = self.train.interval.copy()
-
-        for i, runner in enumerate(source_interval):
-            print(runner.exercise.identifier)
+global train
 
 
 class Buttons(BoxLayout):
@@ -51,7 +38,7 @@ class Buttons(BoxLayout):
         self.add_widget(reset)
 
     def press_start(self, instance):
-        self.parent.ids.timer.clock.start_timer(self.parent.intervalRunner.train.interval)
+        self.parent.ids.timer.clock.start_timer(train.interval)
 
     def press_pause(self, instance):
         if self._paused:
@@ -99,6 +86,8 @@ class ClockLabel(Label):
                 self._set_next_exercise()
 
     def start_timer(self, timings):
+        if self.clock_event:
+            self.clock_event.cancel()
         self._timings = timings.copy()
         self.started = True
         self.resume()
@@ -137,7 +126,7 @@ class RoundLabel(Label):
         super().__init__(**kwargs)
 
     def set_label_from_timings(self, timings: list):
-        self.text = f"Round: {timings[0].round_index + 1}/{self.parent.parent.intervalRunner.train.number_of_rounds}"
+        self.text = f"Round: {timings[0].round_index + 1}/{train.number_of_rounds}"
 
 
 class Timer(FloatLayout):
@@ -159,11 +148,83 @@ class Timer(FloatLayout):
         self.add_widget(self.clock)
 
 
+class MyDropDown(DropDown):
+    def __init__(self, **kwargs):
+        self._index = kwargs["index"]
+        kwargs.pop("index")
+        super().__init__(**kwargs)
+        self._button = None
+
+    def add_button(self, button):
+        self._button = button
+
+    def change_text(self, text):
+        print(f"index = {self._index}")
+        self._button.text = text
+
+class ButtonWithDropDown(Button):
+
+    def __init__(self, **kwargs):
+        self._index = kwargs["index"]
+        kwargs.pop("index")
+        super().__init__(**kwargs)
+
+        self._dropdown = DropDown()
+        for inner_ex in train.available_exercises:
+            btn = Button(text=inner_ex, size_hint_x=.3, size_hint_y=None, height=40, font_size='15sp')
+            btn.bind(on_release=lambda btn: self._dropdown.select(btn.text))
+            self._dropdown.add_widget(btn)
+
+        self.bind(on_release=self._dropdown.open)
+        self._dropdown.bind(on_select=lambda instance, x: setattr(self, 'text', x))
+
+
+class Exercises(ScrollView):
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+        layout = GridLayout(cols=1, spacing=10, padding=10, size_hint_y=None)
+
+        # Make sure the height is such that there is something to scroll.
+        layout.bind(minimum_height=layout.setter('height'))
+
+        for i, ex in enumerate(train.exercises):
+
+            drop_down_button = ButtonWithDropDown(text=ex.identifier, size_hint_x=.3, size_hint_y=None, height=40, font_size='15sp', index=i)
+            layout.add_widget(drop_down_button)
+
+        self.add_widget(layout)
+
+
+class ExercisesInitPaus(ScrollView):
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+        layout = GridLayout(cols=1, spacing=10, padding=10, size_hint_y=None)
+        # Make sure the height is such that there is something to scroll.
+        layout.bind(minimum_height=layout.setter('height'))
+        btn = Button(text=train.init.identifier, size_hint_x=.3, size_hint_y=None, height=40, font_size='15sp')
+        layout.add_widget(btn)
+        btn = Button(text=train.pause.identifier, size_hint_x=.3, size_hint_y=None, height=40, font_size='15sp')
+        layout.add_widget(btn)
+
+        self.add_widget(layout)
+
+
+class ExercisesPlus(BoxLayout):
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+        self.add_widget(Exercises(size_hint_x=.7))
+        self.add_widget(ExercisesInitPaus(size_hint_x=.3))
+
+
 class Overview(BoxLayout):
     def __init__(self, **kwargs):
         super(Overview, self).__init__(**kwargs)
-
-        self.intervalRunner = IntervalRunner()
 
 
 class pyHIIT(App):
@@ -173,4 +234,5 @@ class pyHIIT(App):
 
 
 if __name__ == '__main__':
+    train = Training()
     pyHIIT().run()

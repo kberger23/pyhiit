@@ -73,13 +73,20 @@ class Training:
         self._pause = Exercise(self.PAUSE, self._data[self.PAUSE])
 
     @property
+    def _data_only_exercises(self):
+        exercises = self._data.copy()
+        exercises.pop(self.INIT, None)
+        exercises.pop(self.PAUSE, None)
+        return exercises
+
+    @property
     def available_exercises(self):
-        return list(self._data.keys())
+        return list(self._data_only_exercises.keys())
 
     @property
     def exercises_identifier(self):
         ex = SimpleNamespace()
-        for key in self._data.keys():
+        for key in self._data_only_exercises.keys():
             ex.__dict__[key.replace(" ", "_")] = key
         return ex
 

@@ -9,13 +9,14 @@
             size: self.size
 
 <Timer>:
+    #size_hint: 1, .1
 	orientation: 'vertical'
     canvas:
         Color:
             rgba: 1, 0, 0, 1
         Line:
             width: 3
-            circle: self.center_x, self.center_y, self.center_y / 2.5, 0, self.angle
+            circle: self.center_x, self.center_y, self.center_y / 3.5, 0, self.angle
 
 
 <Buttons>:
@@ -32,6 +33,26 @@
 		size_hint: None, None
 		size: 0, 0
 
+<Exercises>:
+    do_scroll_x: False
+    do_scroll_y: True
+    #size_hint: None, None
+    canvas.before:
+        Color:
+            rgba: .5, .5, .5, 1
+        Line:
+            width: 2
+            rectangle: self.x, self.y, self.width, self.height
+
+<ExercisesPlus>:
+    size_hint: 1, .1
+    orientation: "horizontal"
+    canvas.before:
+        Color:
+            rgba: .5, .5, .5, 1
+        Line:
+            width: 2
+            rectangle: self.x, self.y, self.width, self.height
 
 <Overview>:
     orientation: "vertical"
@@ -41,3 +62,5 @@
         size_hint: 1, .2
 	Buttons:
         id: buttons
+	ExercisesPlus:
+        id: exercises_plus
