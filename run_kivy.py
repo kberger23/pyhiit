@@ -148,33 +148,23 @@ class Timer(FloatLayout):
         self.add_widget(self.clock)
 
 
-class MyDropDown(DropDown):
-    def __init__(self, **kwargs):
-        self._index = kwargs["index"]
-        kwargs.pop("index")
-        super().__init__(**kwargs)
-        self._button = None
-
-    def add_button(self, button):
-        self._button = button
-
-    def change_text(self, text):
-        print(f"index = {self._index}")
-        self._button.text = text
-
-
 class ButtonWithDropDown(Button):
 
     def __init__(self, **kwargs):
         self._index = kwargs["index"]
         kwargs.pop("index")
         super().__init__(**kwargs)
+        self.background_normal = ""
+        self.background_color = (0, 0, 0.6, 1)
 
         self._dropdown = DropDown()
         for inner_ex in train.available_exercises:
-            btn = Button(text=inner_ex, size_hint_x=.3, size_hint_y=None, height=40, font_size='15sp')
+            btn = Button(text=inner_ex, size_hint_x=.3, size_hint_y=None, height=40, font_size='15sp', background_normal=self.background_normal, background_color=(0, 0, 0.4, 0.9))
             btn.bind(on_release=lambda btn: self._dropdown.select(btn.text))
             self._dropdown.add_widget(btn)
+
+        self._dropdown.container.spacing = 0
+        self._dropdown.container.padding = (0, 0, 0, 0)
 
         self.bind(on_release=self._dropdown.open)
         self._dropdown.bind(on_select=lambda instance, x: self.change_exercise(x))
