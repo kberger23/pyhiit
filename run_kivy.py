@@ -6,6 +6,7 @@ from kivy.uix.scrollview import ScrollView
 from kivy.uix.label import Label
 from kivy.uix.button import Button
 from kivy.uix.dropdown import DropDown
+from kivy.uix.textinput import TextInput
 from kivy.graphics import Color, Line
 from kivy.properties import NumericProperty
 
@@ -70,10 +71,15 @@ class ClockLabel(Label):
             self._line = Line(width=5, color=Color(0, 0, 1))
 
     def pause(self):
-        if self.started:
+        if self.started and self._timings:
             self._timings[0].remaining_duration = self._time
             self.text = f"{max(self._time, 0):5.1f}"
             self.clock_event.cancel()
+
+    def resume(self):
+        if self.started and self._timings:
+            self._set_next_exercise()
+            self.clock_event = Clock.schedule_interval(self.callback, self.REFRESH_TIME)
 
     def callback(self, dt):
         self._time = max(0, self._time - dt)
@@ -91,11 +97,6 @@ class ClockLabel(Label):
         self._timings = timings.copy()
         self.started = True
         self.resume()
-
-    def resume(self):
-        if self.started:
-            self._set_next_exercise()
-            self.clock_event = Clock.schedule_interval(self.callback, self.REFRESH_TIME)
 
     def _set_next_exercise(self):
         self._time = self._timings[0].remaining_duration
@@ -175,21 +176,52 @@ class ButtonWithDropDown(Button):
         self.text = x
         train.set_exercise(x, self._index)
 
+import re
+
+class ExerciseDuration(TextInput):
+
+    pat = re.compile('[^0-9]')
+
+    def __init__(self, **kwargs):
+        self._index = kwargs["index"]
+        kwargs.pop("index")
+        super().__init__(**kwargs)
+        self.bind(text=self.text_change)
+
+    def text_change(self, instance, value):
+        try:
+            train.exercises[self._index].round_duration = float(value)
+        except ValueError:
+            pass
+
+    def insert_text(self, substring, from_undo=False):
+        pat = self.pat
+        if '.' in self.text:
+            s = re.sub(pat, '', substring)
+        else:
+            s = '.'.join([re.sub(pat, '', s) for s in substring.split('.', 1)])
+        return super().insert_text(s, from_undo=from_undo)
+
 
 class Exercises(ScrollView):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        layout = GridLayout(cols=1, spacing=10, padding=10, size_hint_y=None)
+        layout = GridLayout(cols=2, spacing=10, padding=10, size_hint_y=None)
 
         # Make sure the height is such that there is something to scroll.
         layout.bind(minimum_height=layout.setter('height'))
 
         for i, ex in enumerate(train.exercises):
 
-            drop_down_button = ButtonWithDropDown(text=ex.identifier, size_hint_x=.3, size_hint_y=None, height=40, font_size='15sp', index=i)
+            drop_down_button = ButtonWithDropDown(text=ex.identifier, size_hint_x=.7, size_hint_y=None, height=40, font_size='15sp', index=i)
             layout.add_widget(drop_down_button)
+
+            text_input = ExerciseDuration(text=str(ex.round_duration), size_hint_x=.3, size_hint_y=None, height=40, font_size='15sp', multiline=False, index=i)
+
+
+            layout.add_widget(text_input)
 
         self.add_widget(layout)
 
