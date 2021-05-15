@@ -336,22 +336,23 @@ class PastExercisesLabel(Label):
         super().__init__(**kwargs)
 
 
-class PastSessions(FloatLayout):
+class PastSessions(ScrollView):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
         history = list(reversed(train.history.as_list))
 
+        self._layout = GridLayout(rows=1, spacing=3, size_hint_x=None)
+        self._layout.bind(minimum_width=self._layout.setter('width'))
         for i, entry in enumerate(history):
-            size = 0.15
             text = f"{entry['date']}\nRounds:{entry['rounds']}"
             for ex, dur in entry["exercises"].items():
                 text = text + f"\n{ex}: {dur:.0f}s"
 
-            self.add_widget(PastExercisesLabel(text=text, size_hint_x=size, size_hint_y=1, pos_hint={'x': size*i, 'y': 0}, font_size='10sp'))
+            self._layout.add_widget(PastExercisesLabel(text=text, size_hint_x=None, width=100, font_size='11sp'))
 
-
+        self.add_widget(self._layout)
 
 
 class Overview(BoxLayout):

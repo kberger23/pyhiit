@@ -45,16 +45,18 @@
         Color:
             rgba: 1, 0, 0, 1
         Rectangle:
-            pos: self.pos[0] + self.size[0] * 0.1 / 2, self.pos[1] + self.size[1] * 0.1 / 2
-            size: self.size[0] * 0.9, self.size[1] * 0.9
-    text_size: root.width * 0.85, root.height * 0.8
-    size: self.texture_size
-    padding: 0,0
+            #pos: self.pos[0] + self.size[0] * 0.1 / 2, self.pos[1] + self.size[1] * 0.1 / 2
+            #size: self.size[0] * 0.9, self.size[1] * 0.9
+            pos: self.pos
+            size: self.size
+    text_size: self.size[0] * 0.98, self.size[1] * 0.98
     valign: "top"
+    halign: "left"
 
 <PastSessions>:
     size_hint: 1, .07
-    orientation: "horizontal"
+    do_scroll_x: True
+    do_scroll_y: False
 
 <Overview>:
     orientation: "vertical"
