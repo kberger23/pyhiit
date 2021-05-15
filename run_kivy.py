@@ -1,4 +1,6 @@
 import re
+from datetime import datetime
+from itertools import cycle
 
 from kivy.app import App
 from kivy.uix.boxlayout import BoxLayout
@@ -94,6 +96,9 @@ class ClockLabel(Label):
         if self._time < 1E-6:
             if len(self._timings) == 0:
                 self.clock_event.cancel()
+                print("Done")
+                train.save_training()
+                self.parent.parent.ids.past_sessions.set_sessions()
             else:
                 self._set_next_exercise()
 
@@ -338,18 +343,22 @@ class PastExercisesLabel(Label):
 
         super().__init__(**kwargs)
 
-from datetime import datetime
-from itertools import cycle
-
 
 class PastSessions(ScrollView):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self._layout = None
+        self.set_sessions()
+
+    def set_sessions(self):
+
+        if self._layout is not None:
+            self.remove_widget(self._layout)
 
         history = list(reversed(train.history.as_list))
 
-        self._layout = GridLayout(rows=1, spacing=3, size_hint_x=None)
+        self._layout = GridLayout(rows=1, spacing=5, size_hint_x=None)
         self._layout.bind(minimum_width=self._layout.setter('width'))
 
         colors = cycle([(0.6, 0, 0, 1), (0, 0, 0.6, 1)])
