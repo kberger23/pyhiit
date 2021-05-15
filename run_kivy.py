@@ -183,14 +183,14 @@ class ExerciseDuration(TextInput):
     pat = re.compile('[^0-9]')
 
     def __init__(self, **kwargs):
-        self._index = kwargs["index"]
-        kwargs.pop("index")
+        self._exercise = kwargs["exercise"]
+        kwargs.pop("exercise")
         super().__init__(**kwargs)
         self.bind(text=self.text_change)
 
     def text_change(self, instance, value):
         try:
-            train.exercises[self._index].round_duration = float(value)
+            self._exercise.round_duration = float(value)
         except ValueError:
             pass
 
@@ -215,11 +215,10 @@ class Exercises(ScrollView):
 
         for i, ex in enumerate(train.exercises):
 
-            drop_down_button = ButtonWithDropDown(text=ex.identifier, size_hint_x=.7, size_hint_y=None, height=40, font_size='15sp', index=i)
+            drop_down_button = ButtonWithDropDown(text=ex.identifier, size_hint_x=.8, size_hint_y=None, height=40, font_size='15sp', index=i)
             layout.add_widget(drop_down_button)
 
-            text_input = ExerciseDuration(text=str(ex.round_duration), size_hint_x=.3, size_hint_y=None, height=40, font_size='15sp', multiline=False, index=i)
-
+            text_input = ExerciseDuration(text=str(ex.round_duration), size_hint_x=.2, size_hint_y=None, height=40, font_size='15sp', multiline=False, exercise=ex)
 
             layout.add_widget(text_input)
 
@@ -231,15 +230,18 @@ class ExercisesInitPause(ScrollView):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        layout = GridLayout(cols=1, spacing=10, padding=10, size_hint_y=None)
+        layout = GridLayout(cols=2, spacing=10, padding=10, size_hint_y=None)
         # Make sure the height is such that there is something to scroll.
         layout.bind(minimum_height=layout.setter('height'))
         #btn = Button(text=train.init.identifier, size_hint_x=.3, size_hint_y=None, height=40, font_size='15sp', background_normal=ButtonWithDropDown.background_normal, background_color=(0, 0, 0.2))
         #layout.add_widget(btn)
         #btn = Button(text=train.pause.identifier, size_hint_x=.3, size_hint_y=None, height=40, font_size='15sp', background_normal=ButtonWithDropDown.background_normal, background_color=(0, 0, 0.2))
 
-        layout.add_widget(Label(text=train.init.identifier, size_hint_x=.3, size_hint_y=None, height=40, font_size='15sp'))
-        layout.add_widget(Label(text=train.pause.identifier, size_hint_x=.3, size_hint_y=None, height=40, font_size='15sp'))
+        size_dur = 0.4666
+        layout.add_widget(Label(text=train.init.identifier, size_hint_x=1-size_dur, size_hint_y=None, height=40, font_size='15sp'))
+        layout.add_widget(ExerciseDuration(text=str(train.init.round_duration), size_hint_x=size_dur, size_hint_y=None, height=40, font_size='15sp', multiline=False, exercise=train.init))
+        layout.add_widget(Label(text=train.pause.identifier, size_hint_x=1-size_dur, size_hint_y=None, height=40, font_size='15sp'))
+        layout.add_widget(ExerciseDuration(text=str(train.pause.round_duration), size_hint_x=size_dur, size_hint_y=None, height=40, font_size='15sp', multiline=False, exercise=train.pause))
 
         self.add_widget(layout)
 
