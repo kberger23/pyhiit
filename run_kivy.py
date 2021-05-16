@@ -385,15 +385,6 @@ class ExercisesInitPause(ScrollView):
         self.add_widget(layout)
 
 
-class ExercisesPlus(BoxLayout):
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-
-        self.add_widget(Exercises(size_hint_x=.7))
-        self.add_widget(ExercisesInitPause(size_hint_x=.3))
-
-
 class PastExercisesLabel(Label):
     def __init__(self, **kwargs):
         self._color = kwargs["color"]
@@ -408,7 +399,6 @@ class PastSessions(ScrollView):
         super().__init__(**kwargs)
 
 
-
 class TimeStuff(Screen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -417,6 +407,12 @@ class TimeStuff(Screen):
 class Workout(Screen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+
+        boxlayout = BoxLayout(orientation="horizontal", size_hint=(1,1))
+
+        boxlayout.add_widget(Exercises(size_hint_x=.7))
+        boxlayout.add_widget(ExercisesInitPause(size_hint_x=.3))
+        self.add_widget(boxlayout)
 
 
 class History(Screen):
