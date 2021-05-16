@@ -77,19 +77,23 @@ class Buttons(FloatLayout):
         #reset.bind(on_press=self.press_reset)
         #self.add_widget(reset)
 
+    @property
+    def root(self):
+        return self.parent.parent.parent.parent
+
     def press_start(self, instance):
-        if not self.parent.started:
+        if not self.root.started:
             self.start.background_normal = "images/buttons/pause_scaled.png"
-            self.parent.press_start(instance)
+            self.root.press_start(instance)
         else:
-            self.parent.press_pause(instance)
-            if self.parent.paused:
+            self.root.press_pause(instance)
+            if self.root.paused:
                 self.start.background_normal = "images/buttons/play_scaled.png"
             else:
                 self.start.background_normal = "images/buttons/pause_scaled.png"
 
     def press_reset(self, instance):
-        self.parent.press_reset(instance)
+        self.root.press_reset(instance)
 
 
 class ClockLabel(Label):
