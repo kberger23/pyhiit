@@ -21,10 +21,6 @@ from timer.training import Training
 global train
 
 
-def root():
-    return App.get_running_app().root
-
-
 class StartPauseResumeReset(Button):
 
     def __init__(self, **kwargs):
@@ -55,29 +51,13 @@ class Buttons(BoxLayout):
         self.add_widget(reset)
 
     def press_start(self, instance):
-        if root().paused:
-            self.pause.text = "Pause"
-            root().paused = False
-        self.parent.ids.timer.clock.start_timer(train.interval)
+        return self.parent.press_start(instance)
 
     def press_pause(self, instance):
-        if root().paused:
-            self.pause.text = "Pause"
-            root().paused = False
-            self.parent.ids.timer.clock.resume()
-        else:
-            if root().started:
-                self.pause.text = "Resume"
-                self.parent.ids.timer.clock.pause()
-                root().paused = True
+        return self.parent.press_pause(instance)
 
     def press_reset(self, instance):
-        self.parent.ids.timer.clock.reset()
-        self.parent.ids.timer.angle = 360
-        self.parent.ids.timer.exercise.reset()
-        self.parent.ids.timer.round.reset()
-        self.pause.text = "Pause"
-        root().paused = False
+        return self.parent.press_reset(instance)
 
 
 class ClockLabel(Label):
@@ -95,19 +75,19 @@ class ClockLabel(Label):
         self._timings = []
         self.clock_event = None
         if not init:
-            root().started = False
+            self.parent.parent.started = False
         with self.canvas:
             self._line = Line(width=5, color=Color(0, 0, 1))
         self.text = self._initial_text
 
     def pause(self):
-        if root().started and self._timings:
+        if self.parent.parent.started and self._timings:
             self._timings[0].remaining_duration = self._time
             self.text = f"{max(self._time, 0):.1f}"
             self.clock_event.cancel()
 
     def resume(self):
-        if root().started and self._timings:
+        if self.parent.parent.started and self._timings:
             self._set_next_exercise()
             self.clock_event = Clock.schedule_interval(self.callback, self.REFRESH_TIME)
 
@@ -127,7 +107,7 @@ class ClockLabel(Label):
         if self.clock_event:
             self.clock_event.cancel()
         self._timings = timings.copy()
-        root().started = True
+        self.parent.parent.started = True
         self.resume()
 
     def _set_next_exercise(self):
@@ -416,6 +396,32 @@ class Overview(BoxLayout):
         self.started = False # Remove this
         self.paused = False
         self.finished = False
+
+    def press_start(self, instance):
+        if self.paused:
+            self.ids.buttons.pause.text = "Pause"
+            self.paused = False
+        self.ids.timer.clock.start_timer(train.interval)
+
+    def press_pause(self, instance):
+        if self.paused:
+            self.ids.buttons.pause.text = "Pause"
+            self.paused = False
+            self.ids.timer.clock.resume()
+        else:
+            if self.started:
+                self.ids.buttons.pause.text = "Resume"
+                self.ids.timer.clock.pause()
+                self.paused = True
+
+    def press_reset(self, instance):
+        self.ids.timer.clock.reset()
+        self.ids.timer.angle = 360
+        self.ids.timer.exercise.reset()
+        self.ids.timer.round.reset()
+        self.text = "Pause"
+        self.paused = False
+
 
 
 class pyHIIT(App):
