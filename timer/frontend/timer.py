@@ -84,6 +84,7 @@ class Buttons(FloatLayout):
     def press_reset(self, instance):
         self.root.press_reset(instance)
 
+from kivy.app import App
 
 class ClockLabel(Label):
 
@@ -98,7 +99,10 @@ class ClockLabel(Label):
 
     @property
     def root(self):
-        return self.parent.parent.parent.parent.parent
+        try:
+            return App.get_running_app().root
+        except:
+            return None
 
     def reset(self, init=False):
         self._time = 0
@@ -119,13 +123,14 @@ class ClockLabel(Label):
 
     def resume(self):
         if self.root.started and self._timings:
-            self._set_next_exercise()
             self.clock_event = Clock.schedule_interval(self.callback, self.REFRESH_TIME)
 
     def callback(self, dt):
+
         self._time = max(0, self._time - dt)
-        self.parent.angle = 360 * (self._time / 60 % 1)
+        self.parent.angle = 360 * (self._time / self._current_timing.exercise.round_duration)
         self.text = f"{max(self._time, 0):.1f}"
+
         if self._time < 1E-6:
             if len(self._timings) == 0:
                 self.clock_event.cancel()
@@ -137,16 +142,20 @@ class ClockLabel(Label):
     def start_timer(self, timings):
         if self.clock_event:
             self.clock_event.cancel()
+
         self._timings = timings.copy()
         self.root.started = True
+
+        self._set_next_exercise()
         self.resume()
 
     def _set_next_exercise(self):
-        self._time = self._timings[0].remaining_duration
-        self.parent.exercise.set_label_from_timings(self._timings)
-        self.parent.round.set_label_from_timings(self._timings)
-
+        self._current_timing = self._timings[0]
         del self._timings[0]
+
+        self._time = self._current_timing.remaining_duration
+        self.parent.exercise.set_label_from_timings(self._current_timing, self._timings[0] if self._timings else None)
+        self.parent.round.set_label_from_timings(self._current_timing)
 
 
 class ExerciseLabel(Label):
@@ -158,11 +167,11 @@ class ExerciseLabel(Label):
     def reset(self):
         self.text = self._initial_text
 
-    def set_label_from_timings(self, timings: list):
-        if timings[0].exercise.identifier.lower() == "pause" or timings[0].exercise.identifier.lower() == "init":
-            self.set_label(f"Next: {timings[1].exercise.identifier}")
+    def set_label_from_timings(self, current_timing, next_timing):
+        if current_timing.exercise.identifier.lower() == "pause" or current_timing.exercise.identifier.lower() == "init":
+            self.set_label(f"Next: {next_timing.exercise.identifier}")
         else:
-            self.set_label(timings[0].exercise.identifier)
+            self.set_label(current_timing.exercise.identifier)
 
     def set_label(self, label):
         self.text = label
@@ -177,8 +186,8 @@ class RoundLabel(Label):
     def reset(self):
         self.text = self._initial_text
 
-    def set_label_from_timings(self, timings: list):
-        self.text = f"{timings[0].round_index + 1}/{get_training().number_of_rounds}"
+    def set_label_from_timings(self, current_timing):
+        self.text = f"{current_timing.round_index + 1}/{get_training().number_of_rounds}"
 
 
 class Timer(FloatLayout):
