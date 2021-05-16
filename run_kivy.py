@@ -7,6 +7,7 @@ from kivy.app import App
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.gridlayout import GridLayout
+from kivy.uix.anchorlayout import AnchorLayout
 from kivy.uix.scrollview import ScrollView
 from kivy.uix.label import Label
 from kivy.uix.button import Button
@@ -52,33 +53,38 @@ class StartPauseResumeReset(Button):
                 return self.parent.parent.press_pause(instance)
 
 
-class Buttons(BoxLayout):
+class Buttons(FloatLayout):
 
-    BUTTON_SIZE = (100, 50)
-    BUTTON_SIZE_HINT = (1./3, 1)
+    BUTTON_SIZE = (f'{100}dp', f'{110}dp')
+    BUTTON_SIZE_HINT = (None, None)
     BUTTON_FONT_SIZE = 14
 
     def __init__(self, **kwargs):
         super(Buttons, self).__init__(**kwargs)
 
-        start = Button(text='Start', font_size=self.BUTTON_FONT_SIZE, size=self.BUTTON_SIZE, size_hint=self.BUTTON_SIZE_HINT)
-        start.bind(on_press=self.press_start)
-        self.add_widget(start)
-        self.pause = Button(text='Pause', font_size=self.BUTTON_FONT_SIZE, size=self.BUTTON_SIZE, size_hint=self.BUTTON_SIZE_HINT)
-        self.pause.bind(on_press=self.press_pause)
-        self.add_widget(self.pause)
-        reset = Button(text='Reset', font_size=self.BUTTON_FONT_SIZE, size=self.BUTTON_SIZE, size_hint=self.BUTTON_SIZE_HINT)
-        reset.bind(on_press=self.press_reset)
-        self.add_widget(reset)
+        anchor_layout = AnchorLayout(anchor_x='center', anchor_y='bottom', pos_hint={'x': 0, 'y': 0})
+        self.start = Button(text='', font_size=self.BUTTON_FONT_SIZE, size=self.BUTTON_SIZE, size_hint=self.BUTTON_SIZE_HINT, background_normal="images/buttons/play_scaled.png")
+        self.start.bind(on_press=self.press_start)
+        anchor_layout.add_widget(self.start)
+        self.add_widget(anchor_layout)
+
+        #reset = Button(text='Reset', font_size=self.BUTTON_FONT_SIZE, pos_hint={'x': 1, 'y': 0}, size=self.BUTTON_SIZE, size_hint=self.BUTTON_SIZE_HINT)
+        #reset.bind(on_press=self.press_reset)
+        #self.add_widget(reset)
 
     def press_start(self, instance):
-        return self.parent.press_start(instance)
-
-    def press_pause(self, instance):
-        return self.parent.press_pause(instance)
+        if not self.parent.started:
+            self.start.background_normal = "images/buttons/pause_scaled.png"
+            self.parent.press_start(instance)
+        else:
+            self.parent.press_pause(instance)
+            if self.parent.paused:
+                self.start.background_normal = "images/buttons/play_scaled.png"
+            else:
+                self.start.background_normal = "images/buttons/pause_scaled.png"
 
     def press_reset(self, instance):
-        return self.parent.press_reset(instance)
+        self.parent.press_reset(instance)
 
 
 class ClockLabel(Label):
@@ -422,18 +428,15 @@ class Overview(BoxLayout):
 
     def press_start(self, instance):
         if self.paused:
-            self.ids.buttons.pause.text = "Pause"
             self.paused = False
         self.ids.timer.clock.start_timer(train.interval)
 
     def press_pause(self, instance):
         if self.paused:
-            self.ids.buttons.pause.text = "Pause"
             self.paused = False
             self.ids.timer.clock.resume()
         else:
             if self.started:
-                self.ids.buttons.pause.text = "Resume"
                 self.ids.timer.clock.pause()
                 self.paused = True
 
@@ -442,7 +445,6 @@ class Overview(BoxLayout):
         self.ids.timer.angle = 360
         self.ids.timer.exercise.reset()
         self.ids.timer.round.reset()
-        self.text = "Pause"
         self.paused = False
 
 
