@@ -406,13 +406,32 @@ class PastSessions(ScrollView):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+
+
+
+class TimeStuff(Screen):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+
+class Workout(Screen):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+
+class History(Screen):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+        self.scroll_view = ScrollView(size_hint=(1, 1), do_scroll_x=False, do_scroll_y=True)
+        self.add_widget(self.scroll_view)
         self._layout = None
         self.set_sessions()
 
     def set_sessions(self):
 
         if self._layout is not None:
-            self.remove_widget(self._layout)
+            self.scroll_view.remove_widget(self._layout)
 
         history = list(reversed(train.history.as_list))
 
@@ -431,22 +450,7 @@ class PastSessions(ScrollView):
 
             self._layout.add_widget(PastExercisesLabel(text=text, size_hint_y=None, height=100, font_size='11sp', color=color))
 
-        self.add_widget(self._layout)
-
-
-class TimeStuff(Screen):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-
-
-class Workout(Screen):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-
-
-class History(Screen):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+        self.scroll_view.add_widget(self._layout)
 
 
 class ScreenSwitches(BoxLayout):
@@ -502,7 +506,7 @@ class Overview(BoxLayout):
 
     @property
     def history(self):
-        return self.sm.history.ids.past_sessions
+        return self.sm.history
 
     def press_start(self, instance):
         if self.paused:
