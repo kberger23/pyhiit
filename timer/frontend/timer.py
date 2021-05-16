@@ -1,5 +1,6 @@
 from functools import partial
 
+from kivy.app import App
 from kivy.uix.screenmanager import Screen
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.anchorlayout import AnchorLayout
@@ -56,15 +57,17 @@ class Buttons(FloatLayout):
     def __init__(self, **kwargs):
         super(Buttons, self).__init__(**kwargs)
 
-        anchor_layout = AnchorLayout(anchor_x='center', anchor_y='bottom', pos_hint={'x': 0, 'y': 0})
+        anchor_layout = AnchorLayout(anchor_x='center', anchor_y='bottom', pos_hint={'x': -0.1, 'y': 0})
         self.start = Button(text='', font_size=self.BUTTON_FONT_SIZE, size=self.BUTTON_SIZE, size_hint=self.BUTTON_SIZE_HINT, background_normal="images/buttons/play_scaled.png")
         self.start.bind(on_press=self.press_start)
         anchor_layout.add_widget(self.start)
         self.add_widget(anchor_layout)
 
-        #reset = Button(text='Reset', font_size=self.BUTTON_FONT_SIZE, pos_hint={'x': 1, 'y': 0}, size=self.BUTTON_SIZE, size_hint=self.BUTTON_SIZE_HINT)
-        #reset.bind(on_press=self.press_reset)
-        #self.add_widget(reset)
+        anchor_layout2 = AnchorLayout(anchor_x='center', anchor_y='bottom', pos_hint={'x': 0.1, 'y': 0})
+        reset = Button(text='Stop', font_size=self.BUTTON_FONT_SIZE, pos_hint={'x': 1, 'y': 0}, size=self.BUTTON_SIZE, size_hint=self.BUTTON_SIZE_HINT)
+        reset.bind(on_press=self.press_reset)
+        anchor_layout2.add_widget(reset)
+        self.add_widget(anchor_layout2)
 
     @property
     def root(self):
@@ -72,19 +75,13 @@ class Buttons(FloatLayout):
 
     def press_start(self, instance):
         if not self.root.started:
-            self.start.background_normal = "images/buttons/pause_scaled.png"
             self.root.press_start(instance)
         else:
             self.root.press_pause(instance)
-            if self.root.paused:
-                self.start.background_normal = "images/buttons/play_scaled.png"
-            else:
-                self.start.background_normal = "images/buttons/pause_scaled.png"
 
     def press_reset(self, instance):
         self.root.press_reset(instance)
 
-from kivy.app import App
 
 class ClockLabel(Label):
 

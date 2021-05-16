@@ -68,19 +68,27 @@ class Overview(BoxLayout):
         return self.sm.timer.ids.timer
 
     @property
+    def buttons(self):
+        return self.sm.timer.ids.buttons
+
+    @property
     def history(self):
         return self.sm.history
 
     def press_start(self, instance):
         if self.paused:
             self.paused = False
+
+        self.buttons.start.background_normal = "images/buttons/pause_scaled.png"
         self.timer.clock.start_timer(get_training().interval)
 
     def press_pause(self, instance):
         if self.paused:
             self.paused = False
+            self.buttons.start.background_normal = "images/buttons/pause_scaled.png"
             self.timer.clock.resume()
         else:
+            self.buttons.start.background_normal = "images/buttons/play_scaled.png"
             if self.started:
                 self.timer.clock.pause()
                 self.paused = True
