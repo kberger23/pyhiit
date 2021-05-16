@@ -457,7 +457,7 @@ class ScreenSwitches(BoxLayout):
 
     def switch_to_workout(self, instance):
         direction = 'right' if self.parent.sm.current == "history_screen" else 'left'
-        self.parent.sm.switch_to(self.parent.sm.workout)
+        self.parent.sm.switch_to(self.parent.sm.workout, direction=direction)
 
     def switch_to_history(self, instance):
         self.parent.sm.switch_to(self.parent.sm.history, direction='left')
