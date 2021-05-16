@@ -1,6 +1,7 @@
 import re
 from datetime import datetime
 from itertools import cycle
+from functools import partial
 
 from kivy.app import App
 from kivy.uix.boxlayout import BoxLayout
@@ -18,6 +19,7 @@ from kivy.clock import Clock
 
 from timer.training import Training
 
+
 global train
 
 
@@ -25,10 +27,29 @@ class StartPauseResumeReset(Button):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.bind(on_press=self.press)
+        self.bind(on_press=self.press, on_release=self.release)
+        self._clock_event = None
+        self._long_press = False
+
+    def update(self, instance, dt):
+        if self.state == "down":
+            self._long_press = True
+            self.parent.parent.press_reset(instance)
+        else:
+            self._long_press = False
+        self._clock_event.cancel()
 
     def press(self, instance):
-        print("started")
+        self._clock_event = Clock.schedule_once(partial(self.update, instance), 3)
+
+    def release(self, instance):
+        if self._long_press:
+            self._long_press = False
+        else:
+            if not self.parent.parent.started:
+                self.parent.parent.press_start(instance)
+            else:
+                return self.parent.parent.press_pause(instance)
 
 
 class Buttons(BoxLayout):
@@ -68,12 +89,14 @@ class ClockLabel(Label):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self._initial_text = self.text
+        self.clock_event = None
         self.reset(init=True)
 
     def reset(self, init=False):
         self._time = 0
         self._timings = []
-        self.clock_event = None
+        if self.clock_event:
+            self.clock_event.cancel()
         if not init:
             self.parent.parent.started = False
         with self.canvas:
