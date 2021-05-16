@@ -1,5 +1,6 @@
 from functools import partial
 
+from kivy.uix.screenmanager import Screen
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.anchorlayout import AnchorLayout
 from kivy.uix.label import Label
@@ -201,3 +202,8 @@ class Timer(FloatLayout):
 
         self.button = StartPauseResumeReset(text='', pos_hint={'x': 0, 'y': 0}, size=self.size, background_color=(0, 0, 0, 0))
         self.add_widget(self.button)
+
+
+class TimeStuff(Screen):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
