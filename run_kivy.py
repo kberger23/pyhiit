@@ -4,6 +4,8 @@ from itertools import cycle
 from functools import partial
 
 from kivy.app import App
+from kivy.core.window import Window
+
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.floatlayout import FloatLayout
@@ -14,6 +16,7 @@ from kivy.uix.label import Label
 from kivy.uix.button import Button
 from kivy.uix.dropdown import DropDown
 from kivy.uix.textinput import TextInput
+
 from kivy.graphics import Color, Line, Rectangle
 from kivy.properties import NumericProperty
 
@@ -413,8 +416,8 @@ class PastSessions(ScrollView):
 
         history = list(reversed(train.history.as_list))
 
-        self._layout = GridLayout(rows=1, spacing=5, size_hint_x=None)
-        self._layout.bind(minimum_width=self._layout.setter('width'))
+        self._layout = GridLayout(cols=1, spacing=5, size_hint_y=None)
+        self._layout.bind(minimum_height=self._layout.setter('height'))
 
         colors = cycle([(0.6, 0, 0, 1), (0, 0, 0.6, 1)])
         color = next(colors)
@@ -426,7 +429,7 @@ class PastSessions(ScrollView):
             for ex, dur in entry["exercises"].items():
                 text = text + f"\n{ex}: {dur:.0f}s"
 
-            self._layout.add_widget(PastExercisesLabel(text=text, size_hint_x=None, width=100, font_size='11sp', color=color))
+            self._layout.add_widget(PastExercisesLabel(text=text, size_hint_y=None, height=100, font_size='11sp', color=color))
 
         self.add_widget(self._layout)
 
@@ -437,6 +440,11 @@ class TimeStuff(Screen):
 
 
 class Workout(Screen):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+
+class History(Screen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
@@ -471,7 +479,7 @@ class Screens(ScreenManager):
         self.add_widget(self.timer)
         self.workout = Workout(name="workout_screen")
         self.add_widget(self.workout)
-        self.history = Workout(name="history_screen")
+        self.history = History(name="history_screen")
         self.add_widget(self.history)
 
 
@@ -519,7 +527,6 @@ class pyHIIT(App):
     def build(self):
         return Overview()
 
-from kivy.core.window import Window
 
 if __name__ == '__main__':
     scale = 0.5
