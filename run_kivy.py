@@ -144,7 +144,7 @@ class ClockLabel(Label):
             if len(self._timings) == 0:
                 self.clock_event.cancel()
                 train.save_training()
-                self.parent.parent.ids.past_sessions.set_sessions()
+                self.root.history.set_sessions()
             else:
                 self._set_next_exercise()
 
@@ -499,6 +499,10 @@ class Overview(BoxLayout):
     @property
     def timer(self):
         return self.sm.timer.ids.timer
+
+    @property
+    def history(self):
+        return self.sm.history.ids.past_sessions
 
     def press_start(self, instance):
         if self.paused:
