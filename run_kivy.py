@@ -22,10 +22,7 @@ from kivy.properties import NumericProperty
 
 from kivy.clock import Clock
 
-from timer.training import Training
-
-
-global train
+from timer.training import get_training, set_training
 
 
 class StartPauseResumeReset(Button):
@@ -143,7 +140,7 @@ class ClockLabel(Label):
         if self._time < 1E-6:
             if len(self._timings) == 0:
                 self.clock_event.cancel()
-                train.save_training()
+                get_training().save_training()
                 self.root.history.set_sessions()
             else:
                 self._set_next_exercise()
@@ -192,7 +189,7 @@ class RoundLabel(Label):
         self.text = self._initial_text
 
     def set_label_from_timings(self, timings: list):
-        self.text = f"{timings[0].round_index + 1}/{train.number_of_rounds}"
+        self.text = f"{timings[0].round_index + 1}/{get_training().number_of_rounds}"
 
 
 class Timer(FloatLayout):
@@ -229,7 +226,8 @@ class ButtonWithDropDown(Button):
         super().__init__(**kwargs)
 
         self._dropdown = DropDown()
-        for inner_ex in train.available_exercises:
+
+        for inner_ex in get_training().available_exercises:
             btn = Button(text=inner_ex, size_hint_x=.3, size_hint_y=None, height=40, font_size='15sp', background_normal=self.background_normal, background_color=(0, 0, 0.4, 0.9))
             btn.bind(on_release=lambda btn: self._dropdown.select(btn.text))
             self._dropdown.add_widget(btn)
@@ -242,7 +240,7 @@ class ButtonWithDropDown(Button):
 
     def change_exercise(self, x):
         self.text = x
-        train.set_exercise(x, self.index)
+        get_training().set_exercise(x, self.index)
 
 
 class SetRounds(TextInput):
@@ -256,7 +254,7 @@ class SetRounds(TextInput):
     @staticmethod
     def text_change(instance, value):
         try:
-            train.number_of_rounds = int(value)
+            get_training().number_of_rounds = int(value)
         except ValueError:
             pass
 
@@ -288,7 +286,7 @@ class ExerciseDuration(TextInput):
     def text_change(self, instance, value):
         try:
             self._exercise.round_duration = float(value)
-            train.reset_interval()
+            get_training().reset_interval()
         except ValueError:
             pass
 
@@ -318,7 +316,7 @@ class ExerciseRemove(Button):
         self.bind(on_press=self.press)
 
     def press(self, instance):
-        train.remove_exercise(self.ex_button.index)
+        get_training().remove_exercise(self.ex_button.index)
         self.parent.remove_widget(self.ex_button)
         self.parent.remove_widget(self.dur_button)
         self.parent.remove_widget(self)
@@ -336,7 +334,7 @@ class Exercises(ScrollView):
         # Make sure the height is such that there is something to scroll.
         self._layout.bind(minimum_height=self._layout.setter('height'))
 
-        for i, ex in enumerate(train.exercises):
+        for i, ex in enumerate(get_training().exercises):
             self.add_exercise_widgets(i, ex)
 
         self.add_plus_to_layout()
@@ -359,8 +357,8 @@ class Exercises(ScrollView):
 
     def add_exercise_to_layout(self, instance):
         self._layout.remove_widget(instance)
-        train.add_exercise(train.available_exercises[-1])
-        self.add_exercise_widgets(len(train.exercises) - 1, train.exercises[-1])
+        get_training().add_exercise(get_training().available_exercises[-1])
+        self.add_exercise_widgets(len(get_training().exercises) - 1, get_training().exercises[-1])
         self.add_plus_to_layout()
 
 
@@ -375,12 +373,12 @@ class ExercisesInitPause(ScrollView):
 
         size_dur = 0.4666
         layout.add_widget(Label(text="Rounds", size_hint_x=1-size_dur, size_hint_y=None, height=40, font_size='15sp'))
-        layout.add_widget(SetRounds(text=str(train.number_of_rounds), size_hint_x=size_dur, size_hint_y=None, height=40, font_size='15sp', multiline=False))
+        layout.add_widget(SetRounds(text=str(get_training().number_of_rounds), size_hint_x=size_dur, size_hint_y=None, height=40, font_size='15sp', multiline=False))
 
-        layout.add_widget(Label(text=train.init.identifier, size_hint_x=1-size_dur, size_hint_y=None, height=40, font_size='15sp'))
-        layout.add_widget(ExerciseDuration(text=str(train.init.round_duration), size_hint_x=size_dur, size_hint_y=None, height=40, font_size='15sp', multiline=False, exercise=train.init))
-        layout.add_widget(Label(text=train.pause.identifier, size_hint_x=1-size_dur, size_hint_y=None, height=40, font_size='15sp'))
-        layout.add_widget(ExerciseDuration(text=str(train.pause.round_duration), size_hint_x=size_dur, size_hint_y=None, height=40, font_size='15sp', multiline=False, exercise=train.pause))
+        layout.add_widget(Label(text=get_training().init.identifier, size_hint_x=1-size_dur, size_hint_y=None, height=40, font_size='15sp'))
+        layout.add_widget(ExerciseDuration(text=str(get_training().init.round_duration), size_hint_x=size_dur, size_hint_y=None, height=40, font_size='15sp', multiline=False, exercise=get_training().init))
+        layout.add_widget(Label(text=get_training().pause.identifier, size_hint_x=1-size_dur, size_hint_y=None, height=40, font_size='15sp'))
+        layout.add_widget(ExerciseDuration(text=str(get_training().pause.round_duration), size_hint_x=size_dur, size_hint_y=None, height=40, font_size='15sp', multiline=False, exercise=get_training().pause))
 
         self.add_widget(layout)
 
@@ -429,7 +427,7 @@ class History(Screen):
         if self._layout is not None:
             self.scroll_view.remove_widget(self._layout)
 
-        history = list(reversed(train.history.as_list))
+        history = list(reversed(get_training().history.as_list))
 
         self._layout = GridLayout(cols=1, spacing=5, size_hint_y=None)
         self._layout.bind(minimum_height=self._layout.setter('height'))
@@ -438,7 +436,7 @@ class History(Screen):
         color = next(colors)
 
         for i, entry in enumerate(history):
-            if not i == 0 and not (datetime.strptime(entry["date"], train.DATE_FORMAT).date() == datetime.strptime(history[i - 1]["date"], train.DATE_FORMAT).date()):
+            if not i == 0 and not (datetime.strptime(entry["date"], get_training().DATE_FORMAT).date() == datetime.strptime(history[i - 1]["date"], get_training().DATE_FORMAT).date()):
                 color = next(colors)
             text = f"{entry['date']}\nRounds:{entry['rounds']}"
             for ex, dur in entry["exercises"].items():
@@ -459,6 +457,10 @@ class ScreenSwitches(BoxLayout):
         box.add_widget(Button(text="Workout", on_press=self.switch_to_workout))
         box.add_widget(Button(text="History", on_press=self.switch_to_history))
         self.add_widget(box)
+
+    @property
+    def root(self):
+        return self.parent
 
     def switch_to_timer(self, instance):
         self.parent.sm.switch_to(self.parent.sm.timer, direction='right')
@@ -507,7 +509,7 @@ class Overview(BoxLayout):
     def press_start(self, instance):
         if self.paused:
             self.paused = False
-        self.timer.clock.start_timer(train.interval)
+        self.timer.clock.start_timer(get_training().interval)
 
     def press_pause(self, instance):
         if self.paused:
@@ -536,5 +538,5 @@ if __name__ == '__main__':
     scale = 0.5
     Window.size = (1080 * scale, 1920 * scale)
 
-    train = Training()
+    set_training()
     pyHIIT().run()
