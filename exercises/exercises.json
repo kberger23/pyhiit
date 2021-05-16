@@ -28,5 +28,11 @@
     },
     "Bicep curls right": {
         "duration": 30
+    },
+    "Dips": {
+        "duration": 30
+    },
+    "Biceps towel": {
+        "duration": 30
     }
 }
