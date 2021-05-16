@@ -1,6 +1,7 @@
 import re
 from datetime import datetime
 from itertools import cycle
+from functools import partial
 
 from kivy.app import App
 from kivy.uix.boxlayout import BoxLayout
@@ -18,7 +19,37 @@ from kivy.clock import Clock
 
 from timer.training import Training
 
+
 global train
+
+
+class StartPauseResumeReset(Button):
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.bind(on_press=self.press, on_release=self.release)
+        self._clock_event = None
+        self._long_press = False
+
+    def update(self, instance, dt):
+        if self.state == "down":
+            self._long_press = True
+            self.parent.parent.press_reset(instance)
+        else:
+            self._long_press = False
+        self._clock_event.cancel()
+
+    def press(self, instance):
+        self._clock_event = Clock.schedule_once(partial(self.update, instance), 3)
+
+    def release(self, instance):
+        if self._long_press:
+            self._long_press = False
+        else:
+            if not self.parent.parent.started:
+                self.parent.parent.press_start(instance)
+            else:
+                return self.parent.parent.press_pause(instance)
 
 
 class Buttons(BoxLayout):
@@ -29,8 +60,6 @@ class Buttons(BoxLayout):
 
     def __init__(self, **kwargs):
         super(Buttons, self).__init__(**kwargs)
-
-        self._paused = False
 
         start = Button(text='Start', font_size=self.BUTTON_FONT_SIZE, size=self.BUTTON_SIZE, size_hint=self.BUTTON_SIZE_HINT)
         start.bind(on_press=self.press_start)
@@ -43,29 +72,13 @@ class Buttons(BoxLayout):
         self.add_widget(reset)
 
     def press_start(self, instance):
-        if self._paused:
-            self.pause.text = "Pause"
-            self._paused = False
-        self.parent.ids.timer.clock.start_timer(train.interval)
+        return self.parent.press_start(instance)
 
     def press_pause(self, instance):
-        if self._paused:
-            self.pause.text = "Pause"
-            self._paused = False
-            self.parent.ids.timer.clock.resume()
-        else:
-            if self.parent.ids.timer.clock.started:
-                self.pause.text = "Resume"
-                self.parent.ids.timer.clock.pause()
-                self._paused = True
+        return self.parent.press_pause(instance)
 
     def press_reset(self, instance):
-        self.parent.ids.timer.clock.reset()
-        self.parent.ids.timer.angle = 360
-        self.parent.ids.timer.exercise.reset()
-        self.parent.ids.timer.round.reset()
-        self.pause.text = "Pause"
-        self._paused = False
+        return self.parent.press_reset(instance)
 
 
 class ClockLabel(Label):
@@ -76,25 +89,28 @@ class ClockLabel(Label):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self._initial_text = self.text
-        self.reset()
+        self.clock_event = None
+        self.reset(init=True)
 
-    def reset(self):
+    def reset(self, init=False):
         self._time = 0
         self._timings = []
-        self.clock_event = None
-        self.started = False
+        if self.clock_event:
+            self.clock_event.cancel()
+        if not init:
+            self.parent.parent.started = False
         with self.canvas:
             self._line = Line(width=5, color=Color(0, 0, 1))
         self.text = self._initial_text
 
     def pause(self):
-        if self.started and self._timings:
+        if self.parent.parent.started and self._timings:
             self._timings[0].remaining_duration = self._time
             self.text = f"{max(self._time, 0):.1f}"
             self.clock_event.cancel()
 
     def resume(self):
-        if self.started and self._timings:
+        if self.parent.parent.started and self._timings:
             self._set_next_exercise()
             self.clock_event = Clock.schedule_interval(self.callback, self.REFRESH_TIME)
 
@@ -114,7 +130,7 @@ class ClockLabel(Label):
         if self.clock_event:
             self.clock_event.cancel()
         self._timings = timings.copy()
-        self.started = True
+        self.parent.parent.started = True
         self.resume()
 
     def _set_next_exercise(self):
@@ -175,6 +191,9 @@ class Timer(FloatLayout):
 
         self.clock = ClockLabel(text='Time', font_size='100sp', pos_hint={'x': 0, 'y': -0.15 + offset}, size_hint=(1, 1))
         self.add_widget(self.clock)
+
+        self.button = StartPauseResumeReset(text='', pos_hint={'x': 0, 'y': 0}, size=self.size, background_color=(0, 0, 0, 0))
+        self.add_widget(self.button)
 
 
 class ButtonWithDropDown(Button):
@@ -396,6 +415,36 @@ class PastSessions(ScrollView):
 class Overview(BoxLayout):
     def __init__(self, **kwargs):
         super(Overview, self).__init__(**kwargs)
+
+        self.started = False # Remove this
+        self.paused = False
+        self.finished = False
+
+    def press_start(self, instance):
+        if self.paused:
+            self.ids.buttons.pause.text = "Pause"
+            self.paused = False
+        self.ids.timer.clock.start_timer(train.interval)
+
+    def press_pause(self, instance):
+        if self.paused:
+            self.ids.buttons.pause.text = "Pause"
+            self.paused = False
+            self.ids.timer.clock.resume()
+        else:
+            if self.started:
+                self.ids.buttons.pause.text = "Resume"
+                self.ids.timer.clock.pause()
+                self.paused = True
+
+    def press_reset(self, instance):
+        self.ids.timer.clock.reset()
+        self.ids.timer.angle = 360
+        self.ids.timer.exercise.reset()
+        self.ids.timer.round.reset()
+        self.text = "Pause"
+        self.paused = False
+
 
 
 class pyHIIT(App):
