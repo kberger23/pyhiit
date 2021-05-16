@@ -4,6 +4,9 @@ from itertools import cycle
 from functools import partial
 
 from kivy.app import App
+from kivy.core.window import Window
+
+from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.gridlayout import GridLayout
@@ -13,6 +16,7 @@ from kivy.uix.label import Label
 from kivy.uix.button import Button
 from kivy.uix.dropdown import DropDown
 from kivy.uix.textinput import TextInput
+
 from kivy.graphics import Color, Line, Rectangle
 from kivy.properties import NumericProperty
 
@@ -32,10 +36,14 @@ class StartPauseResumeReset(Button):
         self._clock_event = None
         self._long_press = False
 
+    @property
+    def root(self):
+        return self.parent.parent.parent.parent.parent
+
     def update(self, instance, dt):
         if self.state == "down":
             self._long_press = True
-            self.parent.parent.press_reset(instance)
+            self.root.press_reset(instance)
         else:
             self._long_press = False
         self._clock_event.cancel()
@@ -47,10 +55,10 @@ class StartPauseResumeReset(Button):
         if self._long_press:
             self._long_press = False
         else:
-            if not self.parent.parent.started:
-                self.parent.parent.press_start(instance)
+            if not self.root.started:
+                self.root.press_start(instance)
             else:
-                return self.parent.parent.press_pause(instance)
+                return self.root.press_pause(instance)
 
 
 class Buttons(FloatLayout):
@@ -72,19 +80,23 @@ class Buttons(FloatLayout):
         #reset.bind(on_press=self.press_reset)
         #self.add_widget(reset)
 
+    @property
+    def root(self):
+        return self.parent.parent.parent.parent
+
     def press_start(self, instance):
-        if not self.parent.started:
+        if not self.root.started:
             self.start.background_normal = "images/buttons/pause_scaled.png"
-            self.parent.press_start(instance)
+            self.root.press_start(instance)
         else:
-            self.parent.press_pause(instance)
-            if self.parent.paused:
+            self.root.press_pause(instance)
+            if self.root.paused:
                 self.start.background_normal = "images/buttons/play_scaled.png"
             else:
                 self.start.background_normal = "images/buttons/pause_scaled.png"
 
     def press_reset(self, instance):
-        self.parent.press_reset(instance)
+        self.root.press_reset(instance)
 
 
 class ClockLabel(Label):
@@ -98,25 +110,29 @@ class ClockLabel(Label):
         self.clock_event = None
         self.reset(init=True)
 
+    @property
+    def root(self):
+        return self.parent.parent.parent.parent.parent
+
     def reset(self, init=False):
         self._time = 0
         self._timings = []
         if self.clock_event:
             self.clock_event.cancel()
         if not init:
-            self.parent.parent.started = False
+            self.root.started = False
         with self.canvas:
             self._line = Line(width=5, color=Color(0, 0, 1))
         self.text = self._initial_text
 
     def pause(self):
-        if self.parent.parent.started and self._timings:
+        if self.root.started and self._timings:
             self._timings[0].remaining_duration = self._time
             self.text = f"{max(self._time, 0):.1f}"
             self.clock_event.cancel()
 
     def resume(self):
-        if self.parent.parent.started and self._timings:
+        if self.root.started and self._timings:
             self._set_next_exercise()
             self.clock_event = Clock.schedule_interval(self.callback, self.REFRESH_TIME)
 
@@ -136,7 +152,7 @@ class ClockLabel(Label):
         if self.clock_event:
             self.clock_event.cancel()
         self._timings = timings.copy()
-        self.parent.parent.started = True
+        self.root.started = True
         self.resume()
 
     def _set_next_exercise(self):
@@ -400,8 +416,8 @@ class PastSessions(ScrollView):
 
         history = list(reversed(train.history.as_list))
 
-        self._layout = GridLayout(rows=1, spacing=5, size_hint_x=None)
-        self._layout.bind(minimum_width=self._layout.setter('width'))
+        self._layout = GridLayout(cols=1, spacing=5, size_hint_y=None)
+        self._layout.bind(minimum_height=self._layout.setter('height'))
 
         colors = cycle([(0.6, 0, 0, 1), (0, 0, 0.6, 1)])
         color = next(colors)
@@ -413,40 +429,97 @@ class PastSessions(ScrollView):
             for ex, dur in entry["exercises"].items():
                 text = text + f"\n{ex}: {dur:.0f}s"
 
-            self._layout.add_widget(PastExercisesLabel(text=text, size_hint_x=None, width=100, font_size='11sp', color=color))
+            self._layout.add_widget(PastExercisesLabel(text=text, size_hint_y=None, height=100, font_size='11sp', color=color))
 
         self.add_widget(self._layout)
 
 
+class TimeStuff(Screen):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+
+class Workout(Screen):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+
+class History(Screen):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+
+class ScreenSwitches(BoxLayout):
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+        box = BoxLayout(orientation="horizontal")
+        box.add_widget(Button(text="Timer", on_press=self.switch_to_timer))
+        box.add_widget(Button(text="Workout", on_press=self.switch_to_workout))
+        box.add_widget(Button(text="History", on_press=self.switch_to_history))
+        self.add_widget(box)
+
+    def switch_to_timer(self, instance):
+        self.parent.sm.switch_to(self.parent.sm.timer, direction='right')
+
+    def switch_to_workout(self, instance):
+        direction = 'right' if self.parent.sm.current == "history_screen" else 'left'
+        self.parent.sm.switch_to(self.parent.sm.workout, direction=direction)
+
+    def switch_to_history(self, instance):
+        self.parent.sm.switch_to(self.parent.sm.history, direction='left')
+
+
+class Screens(ScreenManager):
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.timer = TimeStuff(name="time_screen")
+        self.add_widget(self.timer)
+        self.workout = Workout(name="workout_screen")
+        self.add_widget(self.workout)
+        self.history = History(name="history_screen")
+        self.add_widget(self.history)
+
+
 class Overview(BoxLayout):
+
     def __init__(self, **kwargs):
         super(Overview, self).__init__(**kwargs)
+        self.add_widget(ScreenSwitches(size_hint=(1, 0.05)))
 
-        self.started = False # Remove this
+        self.sm = Screens(size_hint=(1, 0.95))
+        self.add_widget(self.sm)
+
+        self.started = False
         self.paused = False
         self.finished = False
+
+    @property
+    def timer(self):
+        return self.sm.timer.ids.timer
 
     def press_start(self, instance):
         if self.paused:
             self.paused = False
-        self.ids.timer.clock.start_timer(train.interval)
+        self.timer.clock.start_timer(train.interval)
 
     def press_pause(self, instance):
         if self.paused:
             self.paused = False
-            self.ids.timer.clock.resume()
+            self.timer.clock.resume()
         else:
             if self.started:
-                self.ids.timer.clock.pause()
+                self.timer.clock.pause()
                 self.paused = True
 
     def press_reset(self, instance):
-        self.ids.timer.clock.reset()
-        self.ids.timer.angle = 360
-        self.ids.timer.exercise.reset()
-        self.ids.timer.round.reset()
+        self.timer.clock.reset()
+        self.timer.angle = 360
+        self.timer.exercise.reset()
+        self.timer.round.reset()
         self.paused = False
-
 
 
 class pyHIIT(App):
@@ -454,7 +527,6 @@ class pyHIIT(App):
     def build(self):
         return Overview()
 
-from kivy.core.window import Window
 
 if __name__ == '__main__':
     scale = 0.5
