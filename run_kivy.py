@@ -4,6 +4,7 @@ from itertools import cycle
 from functools import partial
 
 from kivy.app import App
+from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.gridlayout import GridLayout
@@ -418,11 +419,60 @@ class PastSessions(ScrollView):
         self.add_widget(self._layout)
 
 
+class TimeStuff(Screen):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+
+class Workout(Screen):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+
+class ScreenSwitches(BoxLayout):
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+        box = BoxLayout(orientation="horizontal")
+        box.add_widget(Button(text="Timer", on_press=self.switch_to_timer))
+        box.add_widget(Button(text="Workout", on_press=self.switch_to_workout))
+        box.add_widget(Button(text="History", on_press=self.switch_to_history))
+        self.add_widget(box)
+
+    def switch_to_timer(self, instance):
+        self.parent.sm.switch_to(self.parent.sm.timer, direction='right')
+
+    def switch_to_workout(self, instance):
+        direction = 'right' if self.parent.sm.current == "history_screen" else 'left'
+        self.parent.sm.switch_to(self.parent.sm.workout)
+
+    def switch_to_history(self, instance):
+        self.parent.sm.switch_to(self.parent.sm.history, direction='left')
+
+
+class Screens(ScreenManager):
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.timer = TimeStuff(name="time_screen")
+        self.add_widget(self.timer)
+        self.workout = Workout(name="workout_screen")
+        self.add_widget(self.workout)
+        self.history = Workout(name="history_screen")
+        self.add_widget(self.history)
+
+
 class Overview(BoxLayout):
+
     def __init__(self, **kwargs):
         super(Overview, self).__init__(**kwargs)
+        self.add_widget(ScreenSwitches(size_hint=(1, 0.05)))
 
-        self.started = False # Remove this
+        self.sm = Screens(size_hint=(1, 0.95))
+        self.add_widget(self.sm)
+
+        self.started = False
         self.paused = False
         self.finished = False
 
@@ -446,7 +496,6 @@ class Overview(BoxLayout):
         self.ids.timer.exercise.reset()
         self.ids.timer.round.reset()
         self.paused = False
-
 
 
 class pyHIIT(App):

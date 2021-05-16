@@ -56,15 +56,24 @@
     do_scroll_x: True
     do_scroll_y: False
 
+<TimeStuff>:
+    BoxLayout:
+        orientation: "vertical"
+        Timer:
+            id: timer
+            #size: 1, 100
+            size_hint: 1, .2
+        Buttons:
+            id: buttons
+        ExercisesPlus:
+            id: exercises_plus
+        PastSessions:
+            id: past_sessions
+
+
+<ScreenSwitches>:
+    size_hint: 1, 0.1
+
+
 <Overview>:
     orientation: "vertical"
-	Timer:
-        id: timer
-        #size: 1, 100
-        size_hint: 1, .2
-	Buttons:
-        id: buttons
-	ExercisesPlus:
-        id: exercises_plus
-	PastSessions:
-        id: past_sessions
