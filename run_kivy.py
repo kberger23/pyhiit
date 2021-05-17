@@ -113,6 +113,7 @@ class Overview(BoxLayout):
         self.timer.round.reset()
         self.upcomming_exercises.reset()
         self.paused = False
+        self.buttons.start.background_normal = "images/buttons/play_scaled.png"
         self._popup.dismiss()
 
     def _dismiss(self, instance):
