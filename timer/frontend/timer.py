@@ -4,10 +4,11 @@ from kivy.app import App
 from kivy.uix.screenmanager import Screen
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.anchorlayout import AnchorLayout
+from kivy.uix.gridlayout import GridLayout
 from kivy.uix.label import Label
 from kivy.uix.button import Button
 
-from kivy.graphics import Color, Line
+from kivy.graphics import Color, Line, Rectangle
 from kivy.properties import NumericProperty
 
 from kivy.clock import Clock
@@ -147,6 +148,8 @@ class ClockLabel(Label):
         self._time = self._current_timing.remaining_duration
         self.parent.exercise.set_label_from_timings(self._current_timing, self._timings[0] if self._timings else None)
         self.parent.round.set_label_from_timings(self._current_timing)
+
+        self.parent.parent.parent.ids.upcomming.create_widgets([self._current_timing] + self._timings)
         self.resume()
 
 
@@ -180,6 +183,59 @@ class RoundLabel(Label):
 
     def set_label_from_timings(self, current_timing):
         self.text = f"{current_timing.round_index + 1}/{get_training().number_of_rounds}"
+
+
+class ExerciseLabelInBar(Label):
+
+    def __init__(self, **kwargs):
+        self._color = kwargs["background_color"]
+        kwargs.pop("background_color")
+        super().__init__(**kwargs)
+
+
+class UpcommingExercises(AnchorLayout):
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+        self.anchor_y = "bottom"
+
+        self._layout = None
+        self._current_widget = 0
+        self.create_widgets(get_training().interval)
+
+    def create_widgets(self, interval):
+        if self._layout is not None:
+            for widget in self._widgets:
+                self._layout.remove_widget(widget)
+            self.remove_widget(self._layout)
+
+        self._widgets = []
+        self._layout = FloatLayout(size_hint_y=0.9)
+        n_to_show = 4
+
+        interval_to_show = interval[:n_to_show]
+
+        for i, entry in enumerate(reversed(interval_to_show)):
+
+            real_index = i + 1 + max(0, n_to_show - len(interval_to_show))
+            scaling = (real_index/n_to_show)**1
+            opacity = (0.7 - 0.01) * scaling + 0.01
+            opacity_font = (1 - 0.2) * scaling + 0.2
+            font_size = (40 - 15) * scaling + 15
+
+            dx = 0.2
+            size_hint_y = 1/(n_to_show + 1)
+
+            pos_y = (0 - 1) * scaling + 1
+
+            lbl = ExerciseLabelInBar(text=f"{entry.exercise.identifier}", pos_hint={'x': 0, 'y': pos_y}, size_hint_y=size_hint_y, font_size=f'{font_size}sp', color=(1, 1, 1, opacity_font), background_color=(0, 0, 1, opacity))
+            self._widgets.append(lbl)
+            self._layout.add_widget(self._widgets[-1])
+        self.add_widget(self._layout)
+
+    def scroll_on(self):
+        pass
 
 
 class Timer(FloatLayout):

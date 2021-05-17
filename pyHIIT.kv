@@ -19,7 +19,7 @@
             rgba: 1, 0, 0, 1
         Line:
             width: 3
-            circle: self.center_x, self.center_y, self.center_y / 2.5, 0, self.angle
+            circle: self.center_x, self.center_y, self.center_y / 1.7, 0, self.angle
 
 <Buttons>:
     size: 1, dp(110)
@@ -46,6 +46,22 @@
     valign: "top"
     halign: "left"
 
+<ExerciseLabelInBar>:
+    canvas.before:
+        Color:
+            rgba: self._color
+        Rectangle:
+            size: self.size
+            pos: self.pos
+
+
+<UpcommingExercises>:
+    #canvas.before:
+    #    Color:
+    #        rgba: 1, 1, 1, 0.4
+    #    Rectangle:
+    #        size: self.size
+    #        pos: self.pos
 
 <Workout>:
 
@@ -54,6 +70,10 @@
 <TimeStuff>:
     BoxLayout:
         orientation: "vertical"
+        UpcommingExercises:
+            id: upcomming
+            #size: 1, 100
+            size_hint: 1, .1
         Timer:
             id: timer
             #size: 1, 100
