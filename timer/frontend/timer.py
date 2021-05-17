@@ -201,7 +201,7 @@ class UpcommingExercises(AnchorLayout):
         self.anchor_y = "bottom"
 
         self._layout = None
-        self._current_widget = 0
+        self._widgets = []
         self.create_widgets(get_training().interval)
 
     def create_widgets(self, interval):
@@ -212,8 +212,8 @@ class UpcommingExercises(AnchorLayout):
 
         self._widgets = []
         self._layout = FloatLayout(size_hint_y=0.9)
-        n_to_show = 4
 
+        n_to_show = 4
         interval_to_show = interval[:n_to_show]
 
         for i, entry in enumerate(reversed(interval_to_show)):
