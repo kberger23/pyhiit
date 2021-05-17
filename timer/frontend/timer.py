@@ -96,10 +96,7 @@ class ClockLabel(Label):
 
     @property
     def root(self):
-        try:
-            return App.get_running_app().root
-        except:
-            return None
+        return App.get_running_app().root
 
     def reset(self, init=False):
         self._time = 0
@@ -114,7 +111,6 @@ class ClockLabel(Label):
 
     def pause(self):
         if self.root.started and self._timings:
-            self._timings[0].remaining_duration = self._time
             self.text = f"{max(self._time, 0):.1f}"
             self.clock_event.cancel()
 
@@ -137,22 +133,21 @@ class ClockLabel(Label):
                 self._set_next_exercise()
 
     def start_timer(self, timings):
-        if self.clock_event:
-            self.clock_event.cancel()
 
         self._timings = timings.copy()
         self.root.started = True
-
         self._set_next_exercise()
-        self.resume()
 
     def _set_next_exercise(self):
+        if self.clock_event:
+            self.clock_event.cancel()
         self._current_timing = self._timings[0]
         del self._timings[0]
 
         self._time = self._current_timing.remaining_duration
         self.parent.exercise.set_label_from_timings(self._current_timing, self._timings[0] if self._timings else None)
         self.parent.round.set_label_from_timings(self._current_timing)
+        self.resume()
 
 
 class ExerciseLabel(Label):
