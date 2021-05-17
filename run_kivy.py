@@ -72,6 +72,10 @@ class Overview(BoxLayout):
         return self.sm.timer.ids.buttons
 
     @property
+    def upcomming_exercises(self):
+        return self.sm.timer.ids.upcomming
+
+    @property
     def history(self):
         return self.sm.history
 
@@ -107,6 +111,7 @@ class Overview(BoxLayout):
         self.timer.angle = 360
         self.timer.exercise.reset()
         self.timer.round.reset()
+        self.upcomming_exercises.reset()
         self.paused = False
         self._popup.dismiss()
 

@@ -248,13 +248,13 @@ class Timer(FloatLayout):
         super(Timer, self).__init__(**kwargs)
 
         offset = 0.05
-        self.round = RoundLabel(text="Round", font_size='50sp', pos_hint={'x': 0, 'y': 0.1 + offset}, size_hint=(1, 1))
+        self.round = RoundLabel(text="Round", font_size='60sp', pos_hint={'x': 0, 'y': 0.1 + offset}, size_hint=(1, 1))
         self.add_widget(self.round)
 
         self.exercise = ExerciseLabel(text="Exercise", font_size='50sp', pos_hint={'x': 0, 'y': 0 + offset}, size_hint=(1, 1))
-        self.add_widget(self.exercise)
+        #self.add_widget(self.exercise)
 
-        self.clock = ClockLabel(text='Time', font_size='100sp', pos_hint={'x': 0, 'y': -0.15 + offset}, size_hint=(1, 1))
+        self.clock = ClockLabel(text='Time', font_size='150sp', pos_hint={'x': 0, 'y': -0.15 + offset}, size_hint=(1, 1))
         self.add_widget(self.clock)
 
         self.button = StartPauseResumeReset(text='', pos_hint={'x': 0, 'y': 0}, size=self.size, background_color=(0, 0, 0, 0))
