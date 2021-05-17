@@ -7,6 +7,7 @@ from kivy.core.window import Window
 from kivy.uix.screenmanager import ScreenManager
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
+from kivy.uix.popup import Popup
 
 from timer.training import get_training, set_training
 from timer.frontend import Workout, TimeStuff, History
@@ -98,8 +99,6 @@ class Overview(BoxLayout):
     def press_reset(self, instance):
 
         self.timer.clock.pause()
-
-        from kivy.uix.popup import Popup
         content = Button(text='Do you really want to stop?')
         self._popup = Popup(title='', content=content, auto_dismiss=True, size_hint=(0.7, 0.13), on_dismiss=self._dismiss)
         content.bind(on_press=self._reset)
