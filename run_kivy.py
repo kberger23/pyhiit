@@ -63,6 +63,8 @@ class Overview(BoxLayout):
         self.paused = False
         self.finished = False
 
+        self._stopped = False
+
     @property
     def timer(self):
         return self.sm.timer.ids.timer
@@ -94,11 +96,28 @@ class Overview(BoxLayout):
                 self.paused = True
 
     def press_reset(self, instance):
+
+        self.timer.clock.pause()
+
+        from kivy.uix.popup import Popup
+        content = Button(text='Do you really want to stop?')
+        self._popup = Popup(title='', content=content, auto_dismiss=True, size_hint=(0.7, 0.13), on_dismiss=self._dismiss)
+        content.bind(on_press=self._reset)
+        self._popup.open()
+
+    def _reset(self, instance):
+        self._stopped = True
         self.timer.clock.reset()
         self.timer.angle = 360
         self.timer.exercise.reset()
         self.timer.round.reset()
         self.paused = False
+        self._popup.dismiss()
+
+    def _dismiss(self, instance):
+        if not self._stopped and not self.paused:
+            self.timer.clock.resume()
+        self._stopped = False
 
 
 class pyHIIT(App):
