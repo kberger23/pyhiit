@@ -234,8 +234,8 @@ class UpcommingExercises(AnchorLayout):
             self._layout.add_widget(self._widgets[-1])
         self.add_widget(self._layout)
 
-    def scroll_on(self):
-        pass
+    def reset(self):
+        self.create_widgets(get_training().interval)
 
 
 class Timer(FloatLayout):
