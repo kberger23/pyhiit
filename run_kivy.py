@@ -1,6 +1,3 @@
-from datetime import datetime
-from itertools import cycle
-
 from kivy.app import App
 from kivy.core.window import Window
 
