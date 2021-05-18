@@ -3,8 +3,11 @@ from kivy.core.window import Window
 
 from kivy.uix.screenmanager import ScreenManager
 from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.anchorlayout import AnchorLayout
+from kivy.uix.gridlayout import GridLayout
 from kivy.uix.button import Button
 from kivy.uix.popup import Popup
+from kivy.uix.label import Label
 
 from timer.training import get_training, set_training
 from timer.frontend import Workout, TimeStuff, History
@@ -99,31 +102,29 @@ class Overview(BoxLayout):
                 self.paused = True
 
     def press_reset(self, instance):
-        from kivy.uix.label import Label
-        from kivy.uix.anchorlayout import AnchorLayout
-        from kivy.uix.gridlayout import GridLayout
 
-        self.timer.clock.pause()
+        if self.started:
+            self.timer.clock.pause()
 
-        boxlayout = BoxLayout(orientation="vertical")
+            boxlayout = BoxLayout(orientation="vertical")
 
-        anch = AnchorLayout(size_hint_y=0.7)
-        lbl = Label(text='Do you really want to stop?')
-        anch.add_widget(lbl)
-        boxlayout.add_widget(anch)
+            anch = AnchorLayout(size_hint_y=0.7)
+            lbl = Label(text='Do you really want to stop?')
+            anch.add_widget(lbl)
+            boxlayout.add_widget(anch)
 
-        grid = GridLayout(rows=1, size_hint_y=0.3, spacing=20)
-        yes = Button(text='yes')
-        yes.bind(on_press=self._reset)
-        grid.add_widget(yes)
+            grid = GridLayout(rows=1, size_hint_y=0.3, spacing=20)
+            yes = Button(text='yes')
+            yes.bind(on_press=self._reset)
+            grid.add_widget(yes)
 
-        no = Button(text='no')
-        no.bind(on_press=lambda *args: self._popup.dismiss())
-        grid.add_widget(no)
-        boxlayout.add_widget(grid)
+            no = Button(text='no')
+            no.bind(on_press=lambda *args: self._popup.dismiss())
+            grid.add_widget(no)
+            boxlayout.add_widget(grid)
 
-        self._popup = Popup(title='', content=boxlayout, auto_dismiss=True, size_hint=(0.7, 0.2), on_dismiss=self._dismiss)
-        self._popup.open()
+            self._popup = Popup(title='', content=boxlayout, auto_dismiss=True, size_hint=(0.7, 0.2), on_dismiss=self._dismiss)
+            self._popup.open()
 
     def _reset(self, instance):
         self._stopped = True
