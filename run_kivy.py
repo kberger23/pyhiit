@@ -26,17 +26,15 @@ class ScreenSwitches(BoxLayout):
         return App.get_running_app().root
 
     def switch_to_timer(self, instance):
-        self.root.upcomming_exercises.create_widgets()
+        #self.root.upcomming_exercises.create_widgets() # if something changed
         self.root.sm.switch_to(self.root.sm.timer, direction='right')
 
     def switch_to_workout(self, instance):
         direction = 'right' if self.root.sm.current == "history_screen" else 'left'
-        if not self.root.started:
-            self.root.sm.switch_to(self.root.sm.workout, direction=direction)
+        self.root.sm.switch_to(self.root.sm.workout, direction=direction)
 
     def switch_to_history(self, instance):
-        if not self.root.started:
-            self.root.sm.switch_to(self.root.sm.history, direction='left')
+        self.root.sm.switch_to(self.root.sm.history, direction='left')
 
 
 class Screens(ScreenManager):
