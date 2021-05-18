@@ -98,11 +98,30 @@ class Overview(BoxLayout):
                 self.paused = True
 
     def press_reset(self, instance):
+        from kivy.uix.label import Label
+        from kivy.uix.anchorlayout import AnchorLayout
+        from kivy.uix.gridlayout import GridLayout
 
         self.timer.clock.pause()
-        content = Button(text='Do you really want to stop?')
-        self._popup = Popup(title='', content=content, auto_dismiss=True, size_hint=(0.7, 0.13), on_dismiss=self._dismiss)
-        content.bind(on_press=self._reset)
+
+        boxlayout = BoxLayout(orientation="vertical")
+
+        anch = AnchorLayout(size_hint_y=0.7)
+        lbl = Label(text='Do you really want to stop?')
+        anch.add_widget(lbl)
+        boxlayout.add_widget(anch)
+
+        grid = GridLayout(rows=1, size_hint_y=0.3, spacing=20)
+        yes = Button(text='yes')
+        yes.bind(on_press=self._reset)
+        grid.add_widget(yes)
+
+        no = Button(text='no')
+        no.bind(on_press=lambda *args: self._popup.dismiss())
+        grid.add_widget(no)
+        boxlayout.add_widget(grid)
+
+        self._popup = Popup(title='', content=boxlayout, auto_dismiss=True, size_hint=(0.7, 0.2), on_dismiss=self._dismiss)
         self._popup.open()
 
     def _reset(self, instance):

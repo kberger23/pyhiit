@@ -254,7 +254,7 @@ class Timer(FloatLayout):
         self.exercise = ExerciseLabel(text="Exercise", font_size='50sp', pos_hint={'x': 0, 'y': 0 + offset}, size_hint=(1, 1))
         #self.add_widget(self.exercise)
 
-        self.clock = ClockLabel(text='Time', font_size='150sp', pos_hint={'x': 0, 'y': -0.15 + offset}, size_hint=(1, 1))
+        self.clock = ClockLabel(text='Time', font_size='150sp', pos_hint={'x': 0, 'y': -0.10 + offset}, size_hint=(1, 1))
         self.add_widget(self.clock)
 
         self.button = StartPauseResumeReset(text='', pos_hint={'x': 0, 'y': 0}, size=self.size, background_color=(0, 0, 0, 0))
