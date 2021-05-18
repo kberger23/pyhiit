@@ -83,7 +83,7 @@ class ExerciseDuration(TextInput):
 
     def text_change(self, instance, value):
         try:
-            self._exercise.round_duration = float(value)
+            self._exercise.round_duration = int(value)
             get_training().reset_interval()
         except ValueError:
             pass

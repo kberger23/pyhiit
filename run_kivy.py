@@ -23,9 +23,10 @@ class ScreenSwitches(BoxLayout):
 
     @property
     def root(self):
-        return self.parent
+        return App.get_running_app().root
 
     def switch_to_timer(self, instance):
+        self.root.upcomming_exercises.create_widgets()
         self.parent.sm.switch_to(self.parent.sm.timer, direction='right')
 
     def switch_to_workout(self, instance):
