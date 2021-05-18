@@ -29,8 +29,11 @@ class ScreenSwitches(BoxLayout):
         return App.get_running_app().root
 
     def switch_to_timer(self, instance):
-        #self.root.upcomming_exercises.create_widgets() # if something changed
+        if self.root.workout_changed:
+            self.root.reset(instance)
+
         self.root.sm.switch_to(self.root.sm.timer, direction='right')
+        self.root.workout_changed = False
 
     def switch_to_workout(self, instance):
         direction = 'right' if self.root.sm.current == "history_screen" else 'left'
@@ -61,11 +64,15 @@ class Overview(BoxLayout):
         self.sm = Screens(size_hint=(1, 0.95))
         self.add_widget(self.sm)
 
+        self._popup = None
+
         self.started = False
         self.paused = False
         self.finished = False
 
         self._stopped = False
+
+        self.workout_changed = False
 
     @property
     def timer(self):
@@ -115,7 +122,7 @@ class Overview(BoxLayout):
 
             grid = GridLayout(rows=1, size_hint_y=0.3, spacing=20)
             yes = Button(text='yes')
-            yes.bind(on_press=self._reset)
+            yes.bind(on_press=self.reset)
             grid.add_widget(yes)
 
             no = Button(text='no')
@@ -126,7 +133,7 @@ class Overview(BoxLayout):
             self._popup = Popup(title='', content=boxlayout, auto_dismiss=True, size_hint=(0.7, 0.2), on_dismiss=self._dismiss)
             self._popup.open()
 
-    def _reset(self, instance):
+    def reset(self, instance):
         self._stopped = True
         self.timer.clock.reset()
         self.timer.angle = 360
@@ -135,7 +142,9 @@ class Overview(BoxLayout):
         self.upcomming_exercises.reset()
         self.paused = False
         self.buttons.start.background_normal = "images/buttons/play_scaled.png"
-        self._popup.dismiss()
+
+        if self._popup:
+            self._popup.dismiss()
 
     def _dismiss(self, instance):
         if not self._stopped and not self.paused:

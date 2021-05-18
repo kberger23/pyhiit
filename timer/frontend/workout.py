@@ -1,5 +1,6 @@
 import re
 
+from kivy.app import App
 from kivy.uix.screenmanager import Screen
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.gridlayout import GridLayout
@@ -36,9 +37,14 @@ class ButtonWithDropDown(Button):
         self.bind(on_release=self._dropdown.open)
         self._dropdown.bind(on_select=lambda instance, x: self.change_exercise(x))
 
+    @property
+    def root(self):
+        return App.get_running_app().root
+
     def change_exercise(self, x):
         self.text = x
         get_training().set_exercise(x, self.index)
+        self.root.workout_changed = True
 
 
 class SetRounds(TextInput):
@@ -49,9 +55,13 @@ class SetRounds(TextInput):
         super().__init__(**kwargs)
         self.bind(text=self.text_change, focus=self.on_focus)
 
-    @staticmethod
-    def text_change(instance, value):
+    @property
+    def root(self):
+        return App.get_running_app().root
+
+    def text_change(self, instance, value):
         try:
+            self.root.workout_changed = True
             get_training().number_of_rounds = int(value)
         except ValueError:
             pass
@@ -81,10 +91,15 @@ class ExerciseDuration(TextInput):
         super().__init__(**kwargs)
         self.bind(text=self.text_change, focus=self.on_focus)
 
+    @property
+    def root(self):
+        return App.get_running_app().root
+
     def text_change(self, instance, value):
         try:
             self._exercise.round_duration = int(value)
             get_training().reset_interval()
+            self.root.workout_changed = True
         except ValueError:
             pass
 
@@ -113,7 +128,12 @@ class ExerciseRemove(Button):
         super().__init__(**kwargs)
         self.bind(on_press=self.press)
 
+    @property
+    def root(self):
+        return App.get_running_app().root
+
     def press(self, instance):
+        self.root.workout_changed = True
         get_training().remove_exercise(self.ex_button.index)
         self.parent.remove_widget(self.ex_button)
         self.parent.remove_widget(self.dur_button)
@@ -138,6 +158,10 @@ class Exercises(ScrollView):
         self.add_plus_to_layout()
         self.add_widget(self._layout)
 
+    @property
+    def root(self):
+        return App.get_running_app().root
+
     def add_plus_to_layout(self):
         plus = Button(text="+", size_hint_x=.05, size_hint_y=None, height=40, font_size='15sp', background_normal="", background_color=self.COLOR_PLUS_MINUS)
         plus.bind(on_press=self.add_exercise_to_layout)
@@ -154,6 +178,8 @@ class Exercises(ScrollView):
         self._layout.add_widget(text_input)
 
     def add_exercise_to_layout(self, instance):
+
+        self.root.workout_changed = True
         self._layout.remove_widget(instance)
         get_training().add_exercise(get_training().available_exercises[-1])
         self.add_exercise_widgets(len(get_training().exercises) - 1, get_training().exercises[-1])
