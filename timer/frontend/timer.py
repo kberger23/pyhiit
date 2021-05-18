@@ -58,13 +58,13 @@ class Buttons(FloatLayout):
     def __init__(self, **kwargs):
         super(Buttons, self).__init__(**kwargs)
 
-        anchor_layout = AnchorLayout(anchor_x='center', anchor_y='bottom', pos_hint={'x': -0.1, 'y': 0})
+        anchor_layout = AnchorLayout(anchor_x='center', anchor_y='bottom', pos_hint={'x': -0.1, 'y': 0.15})
         self.start = Button(text='', font_size=self.BUTTON_FONT_SIZE, size=self.BUTTON_SIZE, size_hint=self.BUTTON_SIZE_HINT, background_normal="images/buttons/play_scaled.png")
         self.start.bind(on_press=self.press_start)
         anchor_layout.add_widget(self.start)
         self.add_widget(anchor_layout)
 
-        anchor_layout2 = AnchorLayout(anchor_x='center', anchor_y='bottom', pos_hint={'x': 0.1, 'y': 0})
+        anchor_layout2 = AnchorLayout(anchor_x='center', anchor_y='bottom', pos_hint={'x': 0.1, 'y': 0.15})
         reset = Button(text='Stop', font_size=self.BUTTON_FONT_SIZE, pos_hint={'x': 1, 'y': 0}, size=self.BUTTON_SIZE, size_hint=self.BUTTON_SIZE_HINT)
         reset.bind(on_press=self.press_reset)
         anchor_layout2.add_widget(reset)
@@ -224,12 +224,11 @@ class UpcommingExercises(AnchorLayout):
             opacity_font = (1 - 0.2) * scaling + 0.2
             font_size = (40 - 15) * scaling + 15
 
-            dx = 0.2
-            size_hint_y = 1/(n_to_show + 1)
+            size_hint_y = 1/(n_to_show + 0.5)
 
             pos_y = (0 - 1) * scaling + 1
 
-            lbl = ExerciseLabelInBar(text=f"{entry.exercise.identifier}", pos_hint={'x': 0, 'y': pos_y}, size_hint_y=size_hint_y, font_size=f'{font_size}sp', color=(1, 1, 1, opacity_font), background_color=(0, 0, 1, opacity))
+            lbl = ExerciseLabelInBar(text=f"{entry.exercise.identifier} ({entry.exercise.round_duration})", pos_hint={'x': 0, 'y': pos_y}, size_hint_y=size_hint_y, font_size=f'{font_size}sp', color=(1, 1, 1, opacity_font), background_color=(1, 0, 0, opacity))
             self._widgets.append(lbl)
             self._layout.add_widget(self._widgets[-1])
         self.add_widget(self._layout)
