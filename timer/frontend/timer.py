@@ -116,7 +116,7 @@ class ClockLabel(Label):
             self.clock_event.cancel()
 
     def resume(self):
-        if self.root.started and self._timings:
+        if self.root.started:
             self.clock_event = Clock.schedule_interval(self.callback, self.REFRESH_TIME)
 
     def callback(self, dt):
@@ -129,6 +129,7 @@ class ClockLabel(Label):
             if len(self._timings) == 0:
                 self.clock_event.cancel()
                 get_training().save_training()
+                self.root.started = False
                 self.root.history.set_sessions()
             else:
                 self._set_next_exercise()
