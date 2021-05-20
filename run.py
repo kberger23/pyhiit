@@ -7,7 +7,7 @@ from colour import Color
 from itertools import cycle
 from playsound import playsound
 
-from timer.training import Training
+from timer.training import _Training
 
 
 def sound_begin():
@@ -27,7 +27,7 @@ class Application(tk.Frame):
         self._current_session = -1
         self._clicked_start = False
         self._pause = False
-        self._train = Training()
+        self._train = _Training()
 
         self.master = master
         self.pack()

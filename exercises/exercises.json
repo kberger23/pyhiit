@@ -14,6 +14,9 @@
     "Wide pull-ups": {
         "duration": 30
     },
+    "Pull-ups lying-towel": {
+        "duration": 30
+    },
     "Wide push-ups": {
         "duration": 30
     },
@@ -24,6 +27,12 @@
         "duration": 30
     },
     "Bicep curls right": {
+        "duration": 30
+    },
+    "Dips": {
+        "duration": 30
+    },
+    "Biceps towel": {
         "duration": 30
     }
 }

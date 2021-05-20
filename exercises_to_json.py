@@ -1,7 +1,7 @@
 import json
 
 from timer.const import EXERCISE_JSON
-from timer.training import Training
+from timer.training import _Training
 
 
 def add_exercise_to_json(exercise, name, overwrite=False):

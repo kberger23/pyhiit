@@ -4,6 +4,17 @@ from types import SimpleNamespace
 
 from timer.const import EXERCISE_JSON, DEBUG, DEBUG_INTERVAL_TIME, EXERCISE_HISTORY_JSON
 
+global training
+
+
+def set_training():
+    global training
+    training = _Training()
+
+
+def get_training():
+    return training
+
 
 class Exercise:
 
@@ -52,7 +63,7 @@ class Runner:
         self._remaining_duration = value
 
 
-class Training:
+class _Training:
 
     PAUSE = "Pause"
     INIT = "Init"

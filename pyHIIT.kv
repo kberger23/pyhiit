@@ -18,8 +18,8 @@
         Color:
             rgba: 1, 0, 0, 1
         Line:
-            width: 3
-            circle: self.center_x, self.center_y, self.center_y / 2.5, 0, self.angle
+            width: 8
+            circle: self.center_x, self.center_y, self.center_y / 1.85, 0, self.angle
 
 <Buttons>:
     size: 1, dp(110)
@@ -34,10 +34,6 @@
     do_scroll_y: True
     #size_hint: None, None
 
-<ExercisesPlus>:
-    size: 1, 1
-    size_hint: 1, 1
-    orientation: "horizontal"
 
 <PastExercisesLabel>:
     canvas.before:
@@ -50,31 +46,40 @@
     valign: "top"
     halign: "left"
 
-<PastSessions>:
-    size: 1, 1
-    size_hint: 1, 1
-    do_scroll_x: False
-    do_scroll_y: True
+<ExerciseLabelInBar>:
+    canvas.before:
+        Color:
+            rgba: self._color
+        Rectangle:
+            size: self.size
+            pos: self.pos
+
+
+<UpcommingExercises>:
+    #canvas.before:
+    #    Color:
+    #        rgba: 1, 1, 1, 0.4
+    #    Rectangle:
+    #        size: self.size
+    #        pos: self.pos
 
 <Workout>:
-    ExercisesPlus:
-        id: exercises_plus
 
 <History>:
-    PastSessions:
-        id: past_sessions
 
 <TimeStuff>:
     BoxLayout:
         orientation: "vertical"
+        UpcommingExercises:
+            id: upcomming
+            #size: 1, 100
+            size_hint: 1, .1
         Timer:
             id: timer
             #size: 1, 100
             size_hint: 1, .2
         Buttons:
             id: buttons
-        #PastSessions:
-        #    id: past_sessions
 
 
 <ScreenSwitches>:
